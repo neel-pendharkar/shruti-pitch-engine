@@ -320,3 +320,14 @@ class VocalSmoother {
   }
 }
 
+if (typeof module !== "undefined" && module.exports) {
+  if (typeof getShrutiById === "undefined") {
+    try {
+      const shrutisMod = require("../data/shrutis.js");
+      globalThis.getShrutiById = shrutisMod.getShrutiById;
+      globalThis.SHRUTIS = shrutisMod.SHRUTIS;
+    } catch (e) {}
+  }
+  module.exports = { PitchDetector, VocalSmoother };
+}
+

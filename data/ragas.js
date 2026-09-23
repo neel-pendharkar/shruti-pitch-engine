@@ -135,6 +135,17 @@ const RAGAS = [
     andolanNotes: []
   },
   {
+    id: "malkauns",
+    name: "Raga Malkauns",
+    thaat: "Bhairavi",
+    prahar: "Late Night (Midnight - 3 AM)",
+    vadi: "ma₁",
+    samvadi: "Sa",
+    description: "Profound, meditative midnight raga. Audav scale strictly omitting Rishabh and Pancham (S g m d n). Anchored around Vadi Shuddha Madhyam.",
+    activeShrutis: [1, 7, 10, 16, 19], // Sa(1/1), ga₂(6/5), ma₁(4/3), dha₂(8/5), ni₁(16/9)
+    andolanNotes: ["ga₂", "dha₂"]
+  },
+  {
     id: "all_22",
     name: "All 22 Shrutis (Full Acoustic Lattice)",
     thaat: "Universal",
@@ -149,4 +160,8 @@ const RAGAS = [
 
 function getRagaById(id) {
   return RAGAS.find(r => r.id === id) || RAGAS[0];
+}
+
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = { RAGAS, getRagaById };
 }

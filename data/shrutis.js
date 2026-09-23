@@ -28,3 +28,7 @@ const SHRUTIS = [
 function getShrutiById(id) {
   return SHRUTIS.find(s => s.id === id);
 }
+
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = { SHRUTIS, getShrutiById };
+}
