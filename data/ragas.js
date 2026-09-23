@@ -18,8 +18,8 @@ const RAGAS = [
     prahar: "Late Afternoon (3 PM - 6 PM)",
     vadi: "ma₁",
     samvadi: "Sa",
-    description: "Poignant, tender afternoon raga. Centers around Vadi Madhyam (ma₁, 4/3). Its Komal Ni is the grave 16/9 (996¢), forming a pure 4th consonance directly with Madhyam.",
-    activeShrutis: [1, 4, 7, 10, 14, 17, 19], // Sa, Re₁(10/9), ga₂(6/5), ma₁(4/3), Pa(3/2), Dha₁(5/3), ni₁(16/9)
+    description: "Poignant, tender afternoon raga. Centers around Vadi Madhyam (ma₁, 4/3). In modern textbook consensus, it features Chatushruti Re₂ (9/8, 204¢), pure minor 3rd ga₂ (6/5, 316¢), and grave Komal Ni₁ (16/9, 996¢) forming a pure 4th consonance with Madhyam.",
+    activeShrutis: [1, 5, 7, 10, 14, 17, 19], // Sa, Re₂(9/8), ga₂(6/5), ma₁(4/3), Pa(3/2), Dha₁(5/3), ni₁(16/9)
     andolanNotes: []
   },
   {
