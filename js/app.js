@@ -361,17 +361,133 @@ function updateArcLockZone(thresh) {
   }
 }
 
+// Master Acoustic Reasoning & Musicological Context for all 22 Shrutis
+const SHRUTI_REASONING = {
+  1: "Fundamental reference tonic / immovable anchor (Adhara Shadj). Exact 1/1 ratio defining the harmonic origin (0.0¢).",
+  2: "Pythagorean Limma (256/243) generated via descending cycle of 4ths/5ths ((4/3)⁴ / 2 = 256/243). Sits -9.8¢ flatter than piano Db. Key signature in Todi creating deep pathos.",
+  3: "Diatonic Just Semitone (16/15), pure major 3rd inversion (4/3 ÷ 5/4 = 16/15). Sits +11.7¢ sharper than piano Db. Forms exact 3/2 fifth with dha₂ (8/5) in Bhairav.",
+  4: "Minor Whole Tone (10/9) derived from 5-limit Just Intonation (5/4 ÷ 9/8 = 10/9). Sits -17.6¢ flatter than piano D. Forms pure 3/2 fifth with ma₁ (4/3) in Kafi.",
+  5: "Chatushruti Major Whole Tone (9/8), second fifth in Pythagorean progression ((3/2)² / 2 = 9/8). Sits +3.9¢ sharper than piano D. Radiant Vadi anchor in Bhoopali and Sarang.",
+  6: "Ati-Komal Grave Minor 3rd (32/27), descending cycle 4th from dha₁ (128/81 × 4/3 ÷ 2 = 32/27). Sits -5.9¢ flatter than piano Eb. Oscillating anchor in Miyan Ki Todi and Darbari.",
+  7: "Pure 5-Limit Minor 3rd (6/5), natural harmonic minor third. Sits +15.6¢ sharper than piano Eb. Beatless, tender consonance in Bhimpalasi and Kafi.",
+  8: "Pure Just Major 3rd (5/4, 5th harmonic). Sits -13.7¢ flatter than piano E. Blissful, beatless consonant cornerstone of Bhoopali, Yaman, and Bilawal.",
+  9: "Pythagorean Major 3rd / Ditone (81/64, (3/2)⁴ / 4 = 81/64). Sits +7.8¢ sharper than piano E. High, bright harmonic resonance in Khamaj.",
+  10: "Shuddha Madhyam (4/3), pure reciprocal 4th below Sa (2 ÷ 3/2 = 4/3). Sits -2.0¢ flatter than piano F. Principal Vadi anchor of Bhimpalasi and Yaman descent.",
+  11: "Acute Madhyam / Teevra Ma (27/20), 5-limit inflection (9/8 × 6/5 = 27/20). Sits +19.5¢ sharper than piano F. Melodic ascending nuance.",
+  12: "Natural Diatonic Tritone (45/32, 5/4 × 9/8 = 45/32). Sits -9.8¢ flatter than piano F#. Tender Tivra Madhyam in Yaman.",
+  13: "Pythagorean Sharp 4th (729/512, (3/2)⁶ / 8 = 729/512). Sits +11.7¢ sharper than piano F#. Sharp piercing tritone anchor in Miyan Ki Todi and Marwa.",
+  14: "Pancham (3/2, 3rd harmonic), immovable primordial anchor. Sits +2.0¢ sharper than piano G. Consonant pillar of the saptak across all classical ragas.",
+  15: "Pythagorean Flat 6th (128/81), descending cycle tone ((4/3)³ / 2 = 128/81). Sits -7.8¢ flatter than piano Ab. Forms an exact beatless 3/2 fifth with re₁ in Miyan Ki Todi.",
+  16: "Diatonic Minor 6th (8/5), pure major 3rd inversion (2 ÷ 5/4 = 8/5). Sits +13.7¢ sharper than piano Ab. Forms exact 3/2 fifth with re₂ (16/15) in Bhairav.",
+  17: "Pure Just Major 6th (5/3, 5/4 × 4/3 = 5/3). Sits -15.6¢ flatter than piano A. Blissful consonant Samvadi pillar of Bhoopali and Yaman.",
+  18: "Pythagorean Major 6th (27/16, (3/2)³ / 2 = 27/16). Sits +5.9¢ sharper than piano A. Bright natural 6th in Bilawal.",
+  19: "Grave Minor 7th (16/9, (4/3)² = 16/9). Sits -3.9¢ flatter than piano Bb. Forms pure 4th consonance with Madhyam (4/3) in Bhimpalasi and Darbari.",
+  20: "Pure Just Minor 7th (9/5, 3/2 × 6/5 = 9/5). Sits +17.6¢ sharper than piano Bb. Sweet descending contour interval in Vrindavani Sarang.",
+  21: "Pure Just Major 7th (15/8, 5/4 × 3/2 = 15/8). Sits -11.7¢ flatter than piano B. Majestic leading tone in Yaman, Bhoopali, and Bhairav.",
+  22: "Kakali Nishad (243/128, (3/2)⁵ / 4 = 243/128). Sits +9.8¢ sharper than piano B. High, energetic leading tone in Shankara."
+};
+
+const CHROMATIC_NOTES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+
+function renderBottomTuningTable(raga, tonicFreq) {
+  if (!raga) return;
+  const tonicSelect = document.getElementById("tonicSelect");
+  const tonicName = tonicSelect ? tonicSelect.value : "C#";
+  const tonicIndex = CHROMATIC_NOTES.indexOf(tonicName);
+
+  const tableTitle = document.getElementById("bottomTableTitle");
+  const thaatBadge = document.getElementById("bottomRagaThaatBadge");
+  const tonicBadge = document.getElementById("bottomTonicBadge");
+  const tableBody = document.getElementById("bottomTuningTableBody");
+  const citationsBox = document.getElementById("bottomCitationsBox");
+  const citationsList = document.getElementById("bottomCitationsList");
+
+  if (tableTitle) tableTitle.textContent = `${raga.name} • 22-Shruti Acoustic Tuning Matrix`;
+  if (thaatBadge) thaatBadge.textContent = `${raga.thaat} Thaat`;
+  if (tonicBadge) tonicBadge.textContent = `Tonic Sa = ${tonicName} (${tonicFreq.toFixed(1)} Hz)`;
+
+  if (tableBody) {
+    tableBody.innerHTML = "";
+
+    raga.activeShrutis.forEach(shrutiId => {
+      const shruti = getShrutiById(shrutiId);
+      if (!shruti) return;
+
+      const exactFreq = tonicFreq * (shruti.ratio[0] / shruti.ratio[1]);
+      const semitones = Math.round(shruti.cents / 100);
+      const pianoNote = CHROMATIC_NOTES[(tonicIndex >= 0 ? tonicIndex + semitones : 1 + semitones) % 12];
+      const diff = shruti.cents - (semitones * 100);
+
+      let badgeClass = "anchor";
+      let badgeText = "0.0¢ (anchor)";
+      if (Math.abs(diff) < 0.2) {
+        badgeClass = "anchor";
+        badgeText = "0.0¢ (anchor)";
+      } else if (diff > 0) {
+        badgeClass = "sharp";
+        badgeText = `+${diff.toFixed(1)}¢ sharp`;
+      } else {
+        badgeClass = "flat";
+        badgeText = `${diff.toFixed(1)}¢ flat`;
+      }
+
+      // Check Vadi / Samvadi role
+      let swaraBadgeClass = "swara-badge";
+      let swaraRoleLabel = "";
+      if (raga.vadi && shruti.swara.toLowerCase() === raga.vadi.toLowerCase()) {
+        swaraBadgeClass += " vadi";
+        swaraRoleLabel = " (Vadi)";
+      } else if (raga.samvadi && shruti.swara.toLowerCase() === raga.samvadi.toLowerCase()) {
+        swaraBadgeClass += " samvadi";
+        swaraRoleLabel = " (Samvadi)";
+      }
+
+      const reasoning = SHRUTI_REASONING[shruti.id] || shruti.desc || "Harmonic ratio in 5-limit Just Intonation.";
+
+      const tr = document.createElement("tr");
+      tr.id = `bottom-tuning-row-${shruti.id}`;
+      tr.innerHTML = `
+        <td><span class="${swaraBadgeClass}">${shruti.swara}${swaraRoleLabel}</span></td>
+        <td><strong>${shruti.name}</strong></td>
+        <td class="mono-cell">${shruti.ratioStr}</td>
+        <td class="mono-cell">+${shruti.cents.toFixed(1)}¢</td>
+        <td class="mono-cell">${exactFreq.toFixed(1)} Hz</td>
+        <td>
+          <div class="piano-comparison">
+            <span class="piano-note">${pianoNote}</span>
+            <span class="diff-badge ${badgeClass}">${badgeText}</span>
+          </div>
+        </td>
+        <td class="reasoning-cell">${reasoning}</td>
+      `;
+      tableBody.appendChild(tr);
+    });
+  }
+
+  // Populate academic & treatise citations if present
+  if (citationsBox && citationsList) {
+    if (raga.citations && raga.citations.length > 0) {
+      citationsList.innerHTML = raga.citations.map(c => `<li>${c}</li>`).join("");
+      citationsBox.style.display = "block";
+    } else {
+      citationsBox.style.display = "none";
+    }
+  }
+}
+
 function updateBaseFreq(freq) {
   baseFreq = freq;
   document.getElementById("saFreqDisplay").textContent = `${freq.toFixed(2)} Hz`;
   if (pitchCanvas) pitchCanvas.setBaseFreq(freq);
   if (tanpura) tanpura.setBaseFreq(freq);
+  if (currentRaga) renderBottomTuningTable(currentRaga, freq);
 }
 
 function updateRagaInfo(raga) {
   document.getElementById("ragaDesc").textContent = raga.description;
   document.getElementById("ragaPrahar").textContent = raga.prahar;
   document.getElementById("ragaVadi").textContent = `Vadi: ${raga.vadi || "—"} | Samvadi: ${raga.samvadi || "—"}`;
+  renderBottomTuningTable(raga, baseFreq);
 }
 
 async function initAudio() {
@@ -556,6 +672,13 @@ function renderHUD(now) {
     displayedFreq += (targetFreq - displayedFreq) * 0.15;
     if (freqEl) freqEl.textContent = `${displayedFreq.toFixed(1)} Hz`;
 
+    // Highlight active row in bottom tuning table
+    const activeRow = document.getElementById(`bottom-tuning-row-${shruti.id}`);
+    if (activeRow && !activeRow.classList.contains("active-singing")) {
+      document.querySelectorAll("#bottomTuningTableBody tr.active-singing").forEach(el => el.classList.remove("active-singing"));
+      activeRow.classList.add("active-singing");
+    }
+
     // Formatted Deviation readout (+1.2¢)
     const sign = displayedDeviation >= 0 ? "+" : "";
     if (deviationEl) {
@@ -576,6 +699,9 @@ function renderHUD(now) {
       }
     }
   } else {
+    // Clear active row highlight when silent or no match
+    document.querySelectorAll("#bottomTuningTableBody tr.active-singing").forEach(el => el.classList.remove("active-singing"));
+
     if (deviationEl) {
       deviationEl.textContent = "—";
       deviationEl.className = "hud-deviation";

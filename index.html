@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>22-Shruti Pitch Engine — Indian Classical Pitch Recognizer</title>
-  <link rel="stylesheet" href="css/style.css?v=20260923_2320">
+  <link rel="stylesheet" href="css/style.css?v=20260923_2340">
 </head>
 <body>
 
@@ -331,25 +331,65 @@
       <canvas id="pitchCanvas"></canvas>
     </section>
 
-    <!-- Bottom Raga Info Strip -->
-    <footer class="raga-info-strip">
-      <div>
-        <strong>Prahar:</strong> <span id="ragaPrahar">—</span> | 
-        <span id="ragaVadi">—</span>
+    <!-- Bottom Chosen Raga Acoustic Tuning Table & Reasoning -->
+    <section id="ragaTableSection" class="bottom-raga-table-card">
+      <div class="table-card-header">
+        <div class="table-card-title-group">
+          <span class="card-icon">📊</span>
+          <h3 id="bottomTableTitle" class="table-card-title">22-Shruti Acoustic Tuning Matrix</h3>
+          <span id="bottomRagaThaatBadge" class="card-badge thaat-badge">Kalyan</span>
+        </div>
+        <span id="bottomTonicBadge" class="card-badge gold">Tonic Sa = C# (277.2 Hz)</span>
       </div>
-      <div>
-        <span id="ragaDesc">—</span>
+
+      <div class="table-responsive-wrapper">
+        <table class="tuning-table">
+          <thead>
+            <tr>
+              <th>Swara</th>
+              <th>Shruti Name</th>
+              <th>Ratio</th>
+              <th>Cents</th>
+              <th>Freq (Hz)</th>
+              <th>vs Piano (12-TET)</th>
+              <th>Acoustic Reasoning & Musicological Context</th>
+            </tr>
+          </thead>
+          <tbody id="bottomTuningTableBody">
+            <!-- Populated dynamically -->
+          </tbody>
+        </table>
       </div>
-    </footer>
+
+      <!-- Citations Box if available for verified ragas -->
+      <div id="bottomCitationsBox" class="raga-citations-box" style="display: none;">
+        <div class="citations-header">
+          <span class="citations-icon">📜</span>
+          <strong>Academic & Treatise Citations:</strong>
+        </div>
+        <ul id="bottomCitationsList" class="citations-list"></ul>
+      </div>
+
+      <!-- Bottom Raga Meta Bar -->
+      <div class="bottom-raga-meta-bar">
+        <div>
+          <strong>Prahar:</strong> <span id="ragaPrahar">—</span> | 
+          <span id="ragaVadi">—</span>
+        </div>
+        <div>
+          <span id="ragaDesc">—</span>
+        </div>
+      </div>
+    </section>
 
   </main>
 
   <!-- Application Scripts -->
-  <script src="data/shrutis.js?v=20260923_2320"></script>
-  <script src="data/ragas.js?v=20260923_2320"></script>
-  <script src="js/dsp.js?v=20260923_2320"></script>
-  <script src="js/tanpura.js?v=20260923_2320"></script>
-  <script src="js/canvas.js?v=20260923_2320"></script>
-  <script src="js/app.js?v=20260923_2320"></script>
+  <script src="data/shrutis.js?v=20260923_2340"></script>
+  <script src="data/ragas.js?v=20260923_2340"></script>
+  <script src="js/dsp.js?v=20260923_2340"></script>
+  <script src="js/tanpura.js?v=20260923_2340"></script>
+  <script src="js/canvas.js?v=20260923_2340"></script>
+  <script src="js/app.js?v=20260923_2340"></script>
 </body>
 </html>
