@@ -116,6 +116,56 @@ main {
   width: 100%;
 }
 
+/* Research Disclaimer Banner */
+.disclaimer-banner {
+  background: rgba(30, 41, 59, 0.7);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: 10px;
+  padding: 10px 18px;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+}
+
+.disclaimer-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  line-height: 1.45;
+}
+
+.disclaimer-tag {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--accent-emerald);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  flex-shrink: 0;
+}
+
+.disclaimer-content strong {
+  color: var(--accent-gold);
+}
+
+.disclaimer-link {
+  color: var(--accent-cyan);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+
+.disclaimer-link:hover {
+  color: #7dd3fc;
+}
+
 /* Controls Bar */
 .controls-bar {
   background: var(--bg-panel);
@@ -223,6 +273,265 @@ select:focus {
 @keyframes pulse {
   0% { transform: scale(1); }
   100% { transform: scale(1.03); }
+}
+
+/* Drawer Toggle & Auto-Save Badge */
+.btn-drawer-toggle {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.save-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 9999px;
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--accent-emerald);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  opacity: 0.85;
+  transition: opacity 0.3s ease, background 0.3s ease, color 0.3s ease;
+}
+
+.save-badge.flash {
+  background: var(--accent-emerald);
+  color: #04121d;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.6);
+}
+
+/* Expandable Dials & Singer's Help Drawer */
+.dials-drawer {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-height 0.45s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease, margin 0.35s ease;
+  margin-bottom: 0;
+}
+
+.dials-drawer.open {
+  max-height: 1200px;
+  opacity: 1;
+  margin-bottom: 18px;
+}
+
+.drawer-inner {
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  padding: 22px 26px;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.5);
+}
+
+.drawer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 14px;
+  margin-bottom: 18px;
+  gap: 16px;
+}
+
+.drawer-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.drawer-subtitle {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.drawer-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 0.75rem;
+  border-radius: 6px;
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid var(--border-color);
+}
+
+.btn-outline:hover {
+  color: var(--accent-cyan);
+  border-color: var(--accent-cyan);
+  background: rgba(56, 189, 248, 0.08);
+}
+
+.btn-close-drawer {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.btn-close-drawer:hover {
+  color: var(--accent-ruby);
+  border-color: var(--accent-ruby);
+}
+
+/* Two-Column Body Grid */
+.drawer-body-grid {
+  display: grid;
+  grid-template-columns: 1.35fr 1fr;
+  gap: 24px;
+}
+
+.column-heading {
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--accent-cyan);
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Dial Cards Grid */
+.dial-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
+.dial-card {
+  background: rgba(30, 41, 59, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.dial-card:hover {
+  border-color: rgba(56, 189, 248, 0.3);
+}
+
+.dial-card.highlight {
+  border-color: rgba(16, 185, 129, 0.35);
+  background: rgba(16, 185, 129, 0.04);
+}
+
+.dial-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dial-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.dial-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  font-family: monospace;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: rgba(56, 189, 248, 0.12);
+  color: var(--accent-cyan);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+}
+
+.dial-badge.emerald {
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--accent-emerald);
+  border-color: rgba(16, 185, 129, 0.35);
+}
+
+.dial-badge.gold {
+  background: rgba(251, 191, 36, 0.15);
+  color: var(--accent-gold);
+  border-color: rgba(251, 191, 36, 0.35);
+}
+
+.dial-range {
+  width: 100%;
+  accent-color: var(--accent-cyan);
+  cursor: pointer;
+}
+
+.dial-card.highlight .dial-range {
+  accent-color: var(--accent-emerald);
+}
+
+.dial-range-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  font-family: monospace;
+}
+
+.dial-hint {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  line-height: 1.35;
+  margin: 0;
+}
+
+/* Help Cards Stack */
+.help-cards-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.help-card {
+  background: rgba(30, 41, 59, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 12px 14px;
+}
+
+.help-card-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--accent-gold);
+  margin-bottom: 4px;
+}
+
+.help-card-text {
+  font-size: 0.74rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+  margin: 0;
+}
+
+.help-card-text strong {
+  color: var(--text-main);
 }
 
 /* Live Display HUD (Slick, Calm Studio Instrument) */
@@ -594,6 +903,14 @@ select:focus {
   <!-- Main Container -->
   <main>
 
+    <!-- Research Disclaimer Banner -->
+    <div class="disclaimer-banner">
+      <div class="disclaimer-content">
+        <span class="disclaimer-tag">Verified Ragas</span>
+        <span>Acoustic 22-Shruti microtonal tuning for <strong>Raga Bhoop</strong> and <strong>Bhimpalas</strong> is perfected and verified. For research collaborations or expanding to more ragas: <a href="mailto:neel.pendharkar@gmail.com" class="disclaimer-link">neel.pendharkar@gmail.com</a></span>
+      </div>
+    </div>
+
     <!-- Top Controls Bar -->
     <section class="controls-bar">
       <!-- Mic Button -->
@@ -639,38 +956,161 @@ select:focus {
         <label class="control-label">Acoustic Tanpura</label>
         <div style="display: flex; align-items: center; gap: 8px;">
           <button id="tanpuraBtn" class="btn btn-secondary">Start Tanpura</button>
-          <input type="range" id="tanpuraVol" min="0" max="1" step="0.05" value="0.45" style="width: 70px;" title="Tanpura Volume">
+          <input type="range" id="tanpuraVol" min="0" max="1" step="0.05" value="0.45" style="width: 65px;" title="Tanpura Volume">
         </div>
       </div>
 
-      <!-- Noise Gate -->
-      <div class="control-item">
-        <label class="control-label" for="noiseGateSlider">Noise Gate</label>
-        <input type="range" id="noiseGateSlider" min="0.002" max="0.04" step="0.002" value="0.008" style="width: 80px;" title="Adjust microphone sensitivity threshold">
-      </div>
+      <!-- Dials & Guide Drawer Toggle Button -->
+      <button id="dialsToggleBtn" class="btn btn-secondary btn-drawer-toggle" title="Open Precision Dials, Audio Settings, and Singer's Guide">
+        ⚙️ Dials & Guide <span id="saveBadge" class="save-badge">✓ Saved</span>
+      </button>
+    </section>
 
-      <!-- Vocal Smoothing -->
-      <div class="control-item">
-        <label class="control-label" for="vocalSmoothingSlider">Vocal Smoothing</label>
-        <input type="range" id="vocalSmoothingSlider" min="0" max="0.95" step="0.05" value="0.85" style="width: 80px;" title="Adjust jitter smoothing (0 = raw instantaneous, 0.95 = ultra-stable)">
-      </div>
+    <!-- Expandable Precision Dials & Singer's Help Drawer -->
+    <section id="dialsDrawer" class="dials-drawer collapsed">
+      <div class="drawer-inner">
+        <!-- Drawer Header -->
+        <div class="drawer-header">
+          <div class="drawer-title-group">
+            <h3 class="drawer-title">⚙️ Precision Audio Dials & Vocalist Guide</h3>
+            <p class="drawer-subtitle">Customize vocal jitter smoothing, resonance lock tolerance, and explore 22-Shruti intonation guidelines.</p>
+          </div>
+          <div class="drawer-actions">
+            <button id="resetDefaultsBtn" class="btn btn-sm btn-outline" title="Reset all sliders to recommended baseline settings">
+              ↺ Reset to Defaults
+            </button>
+            <button id="closeDrawerBtn" class="btn-close-drawer" title="Close panel">✕</button>
+          </div>
+        </div>
 
-      <!-- Adjustment Speed -->
-      <div class="control-item">
-        <label class="control-label" for="adjustmentSpeedSlider">Adjustment Speed</label>
-        <input type="range" id="adjustmentSpeedSlider" min="0.05" max="1.0" step="0.05" value="0.35" style="width: 80px;" title="Reaction speed (Slow = steady average for holding notes, Fast = instant tracking)">
-      </div>
+        <!-- Two-Column Layout: Dials Grid (Left) + Help Guides (Right) -->
+        <div class="drawer-body-grid">
+          <!-- Left Column: Precision Audio Dials -->
+          <div class="dials-column">
+            <h4 class="column-heading">🎛️ Audio & Tuning Dials (Auto-Saved)</h4>
 
-      <!-- Resonance Lock Cutoff -->
-      <div class="control-item">
-        <label class="control-label" for="lockCutoffSlider">Lock Cutoff (<span id="lockCutoffVal" style="color: var(--accent-emerald);">±10¢</span>)</label>
-        <input type="range" id="lockCutoffSlider" min="2" max="20" step="1" value="10" style="width: 80px;" title="Cents tolerance for harmonic resonance lock (default ±10¢, adjustable up to ±20¢)">
-      </div>
+            <div class="dial-cards-grid">
+              <!-- Dial 1: Vocal Smoothing -->
+              <div class="dial-card">
+                <div class="dial-card-header">
+                  <span class="dial-name">Vocal Smoothing</span>
+                  <span id="vocalSmoothingVal" class="dial-badge">0.85</span>
+                </div>
+                <input type="range" id="vocalSmoothingSlider" min="0" max="0.95" step="0.05" value="0.85" class="dial-range">
+                <div class="dial-range-labels">
+                  <span>Raw (0.0)</span>
+                  <span>Ultra-Stable (0.95)</span>
+                </div>
+                <p class="dial-hint">9-sample median filter + adaptive EMA. Filters natural vocal vibrato and glottal fry so the needle tracks your true pitch center.</p>
+              </div>
 
-      <!-- Time Span / Scroll Speed -->
-      <div class="control-item">
-        <label class="control-label" for="timeWindowSlider">Time Span (<span id="timeWindowVal" style="color: var(--accent-gold);">10s</span>)</label>
-        <input type="range" id="timeWindowSlider" min="3" max="25" step="1" value="10" style="width: 80px;" title="Seconds visible on screen for observing note holds over time">
+              <!-- Dial 2: Lock Cutoff (Tolerance) -->
+              <div class="dial-card highlight">
+                <div class="dial-card-header">
+                  <span class="dial-name">Lock Cutoff (Tolerance)</span>
+                  <span id="lockCutoffVal" class="dial-badge emerald">±10¢</span>
+                </div>
+                <input type="range" id="lockCutoffSlider" min="2" max="20" step="1" value="10" class="dial-range">
+                <div class="dial-range-labels">
+                  <span>Strict (±2¢)</span>
+                  <span>Forgiving (±20¢)</span>
+                </div>
+                <p class="dial-hint">Defines the emerald sweet spot on the arc dial. Set tighter (±4¢) for rigorous mastery, or wider (±10¢ to ±15¢) for comfortable practice.</p>
+              </div>
+
+              <!-- Dial 3: Adjustment Speed -->
+              <div class="dial-card">
+                <div class="dial-card-header">
+                  <span class="dial-name">Adjustment Speed</span>
+                  <span id="adjustmentSpeedVal" class="dial-badge">0.35</span>
+                </div>
+                <input type="range" id="adjustmentSpeedSlider" min="0.05" max="1.0" step="0.05" value="0.35" class="dial-range">
+                <div class="dial-range-labels">
+                  <span>Steady Average (0.05)</span>
+                  <span>Fast Tracking (1.0)</span>
+                </div>
+                <p class="dial-hint">Controls reaction time. Lower values (0.2–0.35) stabilize long note holds (alap). Higher values track fast phrases and taans.</p>
+              </div>
+
+              <!-- Dial 4: Microphone Noise Gate -->
+              <div class="dial-card">
+                <div class="dial-card-header">
+                  <span class="dial-name">Noise Gate</span>
+                  <span id="noiseGateVal" class="dial-badge">0.008</span>
+                </div>
+                <input type="range" id="noiseGateSlider" min="0.002" max="0.04" step="0.002" value="0.008" class="dial-range">
+                <div class="dial-range-labels">
+                  <span>Sensitive (0.002)</span>
+                  <span>Heavy (0.04)</span>
+                </div>
+                <p class="dial-hint">Rejects ambient room noise, computer fans, and breath sounds between singing phrases.</p>
+              </div>
+
+              <!-- Dial 5: Timeline Scroll Span -->
+              <div class="dial-card">
+                <div class="dial-card-header">
+                  <span class="dial-name">Timeline Span</span>
+                  <span id="timeWindowVal" class="dial-badge gold">10s</span>
+                </div>
+                <input type="range" id="timeWindowSlider" min="3" max="25" step="1" value="10" class="dial-range">
+                <div class="dial-range-labels">
+                  <span>Quick (3s)</span>
+                  <span>Long Hold (25s)</span>
+                </div>
+                <p class="dial-hint">Number of seconds visible across the screen. Use 15s–25s for holding long notes (swara sadhana) without your pitch scrolling off.</p>
+              </div>
+
+              <!-- Dial 6: Tanpura Volume -->
+              <div class="dial-card">
+                <div class="dial-card-header">
+                  <span class="dial-name">Tanpura Volume</span>
+                  <span id="tanpuraVolVal" class="dial-badge">45%</span>
+                </div>
+                <input type="range" id="tanpuraVolDrawer" min="0" max="1" step="0.05" value="0.45" class="dial-range">
+                <div class="dial-range-labels">
+                  <span>Mute (0%)</span>
+                  <span>Full (100%)</span>
+                </div>
+                <p class="dial-hint">Acoustic synthesized multi-harmonic tanpura with jawari bridge overtones to accompany your vocal practice.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column: Singer's Guide & Help -->
+          <div class="help-column">
+            <h4 class="column-heading">📖 Singer's Guide & 22-Shruti Science</h4>
+
+            <div class="help-cards-stack">
+              <div class="help-card">
+                <div class="help-card-title">🎯 The Analog Arc Dial</div>
+                <p class="help-card-text">
+                  The curved needle swings along a 100° arc from <strong>-50¢ (flat)</strong> to <strong>+50¢ (sharp)</strong>. The center 0° tick is pure integer acoustic harmony. When your voice enters the glowing emerald lock zone, you achieve true resonance with the tanpura.
+                </p>
+              </div>
+
+              <div class="help-card">
+                <div class="help-card-title">🌿 Why Shrutis Differ From Western Tuners</div>
+                <p class="help-card-text">
+                  Western piano and guitar tuners enforce 12-Tone Equal Temperament (12-TET). Indian Classical Music is rooted in <strong>5-limit Just Intonation</strong>. For example, <em>Shuddha Gandhar</em> in Bhoopali (5/4) is <strong>13.7¢ flatter</strong> than a keyboard tuner, producing a sweet, beatless harmonic lock.
+                </p>
+              </div>
+
+              <div class="help-card">
+                <div class="help-card-title">🧘 Swara Sadhana (Long Sustained Holds)</div>
+                <p class="help-card-text">
+                  Hold a note steadily for more than 1.2 seconds. The engine automatically enters Hold Mode, calculating your sustained hold duration, average pitch drift (±¢), and harmonic resonance lock percentage.
+                </p>
+              </div>
+
+              <div class="help-card">
+                <div class="help-card-title">💾 Persistent Browser Memory</div>
+                <p class="help-card-text">
+                  Every dial adjustment, your selected tonic ($C\#$), and active raga are <strong>automatically saved</strong> to your browser's local storage. Your personalized tuning environment is restored whenever you return.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -1774,6 +2214,60 @@ const TONIC_FREQUENCIES = {
   "G#": 415.30
 };
 
+// LocalStorage Preferences Key & Baseline Defaults
+const PREFS_KEY = "shruti_engine_preferences_v2";
+
+const DEFAULT_PREFS = {
+  tonic: "C#",
+  raga: "bhoop",
+  vocalSmoothing: 0.85,
+  adjustmentSpeed: 0.35,
+  lockCutoff: 10,
+  noiseGate: 0.008,
+  timeWindow: 10,
+  tanpuraVol: 0.45
+};
+
+function getSavedPreferences() {
+  try {
+    const raw = localStorage.getItem(PREFS_KEY);
+    if (!raw) return { ...DEFAULT_PREFS };
+    return { ...DEFAULT_PREFS, ...JSON.parse(raw) };
+  } catch (err) {
+    console.warn("Could not load preferences from localStorage:", err);
+    return { ...DEFAULT_PREFS };
+  }
+}
+
+function saveCurrentPreferences() {
+  const prefs = {
+    tonic: document.getElementById("tonicSelect")?.value || "C#",
+    raga: currentRaga?.id || "bhoop",
+    vocalSmoothing: parseFloat(document.getElementById("vocalSmoothingSlider")?.value || 0.85),
+    adjustmentSpeed: parseFloat(document.getElementById("adjustmentSpeedSlider")?.value || 0.35),
+    lockCutoff: parseFloat(document.getElementById("lockCutoffSlider")?.value || 10),
+    noiseGate: parseFloat(document.getElementById("noiseGateSlider")?.value || 0.008),
+    timeWindow: parseFloat(document.getElementById("timeWindowSlider")?.value || 10),
+    tanpuraVol: parseFloat(document.getElementById("tanpuraVol")?.value || 0.45)
+  };
+  try {
+    localStorage.setItem(PREFS_KEY, JSON.stringify(prefs));
+    flashSavedBadge();
+  } catch (err) {
+    console.warn("Could not save preferences to localStorage:", err);
+  }
+}
+
+function flashSavedBadge() {
+  const badge = document.getElementById("saveBadge");
+  if (badge) {
+    badge.classList.add("flash");
+    setTimeout(() => {
+      badge.classList.remove("flash");
+    }, 600);
+  }
+}
+
 window.addEventListener("DOMContentLoaded", () => {
   initUI();
 });
@@ -1781,6 +2275,9 @@ window.addEventListener("DOMContentLoaded", () => {
 function initUI() {
   const canvasElement = document.getElementById("pitchCanvas");
   pitchCanvas = new PitchCanvas(canvasElement);
+
+  // Load user preferences or fall back to defaults
+  const prefs = getSavedPreferences();
 
   // Initialize Raga selector
   const ragaSelect = document.getElementById("ragaSelect");
@@ -1791,7 +2288,8 @@ function initUI() {
     ragaSelect.appendChild(opt);
   });
 
-  currentRaga = RAGAS[0];
+  currentRaga = getRagaById(prefs.raga) || RAGAS[0];
+  ragaSelect.value = currentRaga.id;
   pitchCanvas.setRaga(currentRaga);
   updateRagaInfo(currentRaga);
 
@@ -1800,7 +2298,6 @@ function initUI() {
     pitchCanvas.setRaga(currentRaga);
     updateRagaInfo(currentRaga);
     if (tanpura) {
-      // If raga omits Pa (like Marwa), switch tanpura 1st string to Ni or Ma
       if (currentRaga.id === "marwa") {
         tanpura.setFirstString("Ni");
       } else if (currentRaga.id === "malkauns") {
@@ -1809,14 +2306,19 @@ function initUI() {
         tanpura.setFirstString("Pa");
       }
     }
+    saveCurrentPreferences();
   });
 
   // Tonic selector
   const tonicSelect = document.getElementById("tonicSelect");
-  tonicSelect.value = "C#";
+  tonicSelect.value = prefs.tonic || "C#";
+  baseFreq = TONIC_FREQUENCIES[tonicSelect.value] || 277.18;
+  updateBaseFreq(baseFreq);
+
   tonicSelect.addEventListener("change", (e) => {
     baseFreq = TONIC_FREQUENCIES[e.target.value] || 277.18;
     updateBaseFreq(baseFreq);
+    saveCurrentPreferences();
   });
 
   // Microphone toggle button
@@ -1827,13 +2329,21 @@ function initUI() {
   const calibrateBtn = document.getElementById("calibrateBtn");
   calibrateBtn.addEventListener("click", startCalibration);
 
-  // Tanpura toggle
+  // Tanpura toggle & volume controls (synchronized between toolbar and drawer)
   const tanpuraBtn = document.getElementById("tanpuraBtn");
   const tanpuraVol = document.getElementById("tanpuraVol");
+  const tanpuraVolDrawer = document.getElementById("tanpuraVolDrawer");
+  const tanpuraVolVal = document.getElementById("tanpuraVolVal");
+
+  if (tanpuraVol) tanpuraVol.value = prefs.tanpuraVol;
+  if (tanpuraVolDrawer) tanpuraVolDrawer.value = prefs.tanpuraVol;
+  if (tanpuraVolVal) tanpuraVolVal.textContent = `${Math.round(prefs.tanpuraVol * 100)}%`;
+
   tanpuraBtn.addEventListener("click", () => {
     if (!audioCtx) initAudio();
     if (!tanpura) tanpura = new TanpuraDrone(audioCtx);
     tanpura.setBaseFreq(baseFreq);
+    tanpura.setVolume(parseFloat(tanpuraVol.value));
 
     if (tanpura.isPlaying) {
       tanpura.stop();
@@ -1846,56 +2356,147 @@ function initUI() {
     }
   });
 
-  tanpuraVol.addEventListener("input", (e) => {
-    if (tanpura) tanpura.setVolume(parseFloat(e.target.value));
-  });
+  const syncTanpuraVol = (val) => {
+    if (tanpuraVol) tanpuraVol.value = val;
+    if (tanpuraVolDrawer) tanpuraVolDrawer.value = val;
+    if (tanpuraVolVal) tanpuraVolVal.textContent = `${Math.round(val * 100)}%`;
+    if (tanpura) tanpura.setVolume(val);
+    saveCurrentPreferences();
+  };
 
-  // Sensitivity / Noise Gate slider
-  const noiseGateSlider = document.getElementById("noiseGateSlider");
-  noiseGateSlider.addEventListener("input", (e) => {
-    if (pitchDetector) {
-      pitchDetector.minRMS = parseFloat(e.target.value);
-    }
-  });
+  if (tanpuraVol) tanpuraVol.addEventListener("input", (e) => syncTanpuraVol(parseFloat(e.target.value)));
+  if (tanpuraVolDrawer) tanpuraVolDrawer.addEventListener("input", (e) => syncTanpuraVol(parseFloat(e.target.value)));
 
-  // Vocal Smoothing slider
-  const vocalSmoothingSlider = document.getElementById("vocalSmoothingSlider");
-  if (vocalSmoothingSlider) {
-    vocalSmoothingSlider.addEventListener("input", (e) => {
-      vocalSmoother.setSmoothing(parseFloat(e.target.value));
+  // Expandable Drawer Toggle & Close
+  const dialsDrawer = document.getElementById("dialsDrawer");
+  const dialsToggleBtn = document.getElementById("dialsToggleBtn");
+  const closeDrawerBtn = document.getElementById("closeDrawerBtn");
+
+  if (dialsToggleBtn && dialsDrawer) {
+    dialsToggleBtn.addEventListener("click", () => {
+      dialsDrawer.classList.toggle("open");
+      dialsToggleBtn.classList.toggle("active");
     });
   }
 
-  // Adjustment Speed slider (speed of adaptation / response time)
+  if (closeDrawerBtn && dialsDrawer) {
+    closeDrawerBtn.addEventListener("click", () => {
+      dialsDrawer.classList.remove("open");
+      if (dialsToggleBtn) dialsToggleBtn.classList.remove("active");
+    });
+  }
+
+  // Vocal Smoothing slider
+  const vocalSmoothingSlider = document.getElementById("vocalSmoothingSlider");
+  const vocalSmoothingVal = document.getElementById("vocalSmoothingVal");
+  if (vocalSmoothingSlider) {
+    vocalSmoothingSlider.value = prefs.vocalSmoothing;
+    if (vocalSmoothingVal) vocalSmoothingVal.textContent = prefs.vocalSmoothing.toFixed(2);
+    vocalSmoother.setSmoothing(prefs.vocalSmoothing);
+
+    vocalSmoothingSlider.addEventListener("input", (e) => {
+      const val = parseFloat(e.target.value);
+      vocalSmoother.setSmoothing(val);
+      if (vocalSmoothingVal) vocalSmoothingVal.textContent = val.toFixed(2);
+      saveCurrentPreferences();
+    });
+  }
+
+  // Adjustment Speed slider
   const adjustmentSpeedSlider = document.getElementById("adjustmentSpeedSlider");
+  const adjustmentSpeedVal = document.getElementById("adjustmentSpeedVal");
   if (adjustmentSpeedSlider) {
+    adjustmentSpeedSlider.value = prefs.adjustmentSpeed;
+    if (adjustmentSpeedVal) adjustmentSpeedVal.textContent = prefs.adjustmentSpeed.toFixed(2);
+    vocalSmoother.setAdjustmentSpeed(prefs.adjustmentSpeed);
+
     adjustmentSpeedSlider.addEventListener("input", (e) => {
-      vocalSmoother.setAdjustmentSpeed(parseFloat(e.target.value));
+      const val = parseFloat(e.target.value);
+      vocalSmoother.setAdjustmentSpeed(val);
+      if (adjustmentSpeedVal) adjustmentSpeedVal.textContent = val.toFixed(2);
+      saveCurrentPreferences();
     });
   }
 
   // Resonance Lock Cutoff slider (tolerance for pure harmonic lock)
   const lockCutoffSlider = document.getElementById("lockCutoffSlider");
   const lockCutoffVal = document.getElementById("lockCutoffVal");
+  resonanceThreshold = prefs.lockCutoff || 10.0;
   if (lockCutoffSlider) {
+    lockCutoffSlider.value = resonanceThreshold;
+    if (lockCutoffVal) lockCutoffVal.textContent = `±${resonanceThreshold.toFixed(0)}¢`;
+
     lockCutoffSlider.addEventListener("input", (e) => {
       resonanceThreshold = parseFloat(e.target.value);
       if (lockCutoffVal) lockCutoffVal.textContent = `±${resonanceThreshold.toFixed(0)}¢`;
       updateArcLockZone(resonanceThreshold);
+      saveCurrentPreferences();
     });
   }
 
-  // Initialize Dynamic Arc Gauge Lock Zone to default cutoff (±10¢)
+  // Initialize Dynamic Arc Gauge Lock Zone to cutoff
   updateArcLockZone(resonanceThreshold);
 
-  // Time Window / Scroll Speed slider (holding notes over time)
+  // Noise Gate slider
+  const noiseGateSlider = document.getElementById("noiseGateSlider");
+  const noiseGateVal = document.getElementById("noiseGateVal");
+  if (noiseGateSlider) {
+    noiseGateSlider.value = prefs.noiseGate;
+    if (noiseGateVal) noiseGateVal.textContent = prefs.noiseGate.toFixed(3);
+    if (pitchDetector) pitchDetector.minRMS = prefs.noiseGate;
+
+    noiseGateSlider.addEventListener("input", (e) => {
+      const val = parseFloat(e.target.value);
+      if (pitchDetector) pitchDetector.minRMS = val;
+      if (noiseGateVal) noiseGateVal.textContent = val.toFixed(3);
+      saveCurrentPreferences();
+    });
+  }
+
+  // Time Window / Scroll Speed slider
   const timeWindowSlider = document.getElementById("timeWindowSlider");
   const timeWindowVal = document.getElementById("timeWindowVal");
   if (timeWindowSlider) {
+    timeWindowSlider.value = prefs.timeWindow;
+    if (timeWindowVal) timeWindowVal.textContent = `${prefs.timeWindow}s`;
+    pitchCanvas.setTimeWindow(prefs.timeWindow);
+
     timeWindowSlider.addEventListener("input", (e) => {
       const sec = parseFloat(e.target.value);
       pitchCanvas.setTimeWindow(sec);
       if (timeWindowVal) timeWindowVal.textContent = `${sec}s`;
+      saveCurrentPreferences();
+    });
+  }
+
+  // Reset to Defaults Button
+  const resetDefaultsBtn = document.getElementById("resetDefaultsBtn");
+  if (resetDefaultsBtn) {
+    resetDefaultsBtn.addEventListener("click", () => {
+      // Apply baseline defaults
+      vocalSmoothingSlider.value = DEFAULT_PREFS.vocalSmoothing;
+      if (vocalSmoothingVal) vocalSmoothingVal.textContent = DEFAULT_PREFS.vocalSmoothing.toFixed(2);
+      vocalSmoother.setSmoothing(DEFAULT_PREFS.vocalSmoothing);
+
+      adjustmentSpeedSlider.value = DEFAULT_PREFS.adjustmentSpeed;
+      if (adjustmentSpeedVal) adjustmentSpeedVal.textContent = DEFAULT_PREFS.adjustmentSpeed.toFixed(2);
+      vocalSmoother.setAdjustmentSpeed(DEFAULT_PREFS.adjustmentSpeed);
+
+      lockCutoffSlider.value = DEFAULT_PREFS.lockCutoff;
+      resonanceThreshold = DEFAULT_PREFS.lockCutoff;
+      if (lockCutoffVal) lockCutoffVal.textContent = `±${resonanceThreshold.toFixed(0)}¢`;
+      updateArcLockZone(resonanceThreshold);
+
+      noiseGateSlider.value = DEFAULT_PREFS.noiseGate;
+      if (noiseGateVal) noiseGateVal.textContent = DEFAULT_PREFS.noiseGate.toFixed(3);
+      if (pitchDetector) pitchDetector.minRMS = DEFAULT_PREFS.noiseGate;
+
+      timeWindowSlider.value = DEFAULT_PREFS.timeWindow;
+      if (timeWindowVal) timeWindowVal.textContent = `${DEFAULT_PREFS.timeWindow}s`;
+      pitchCanvas.setTimeWindow(DEFAULT_PREFS.timeWindow);
+
+      syncTanpuraVol(DEFAULT_PREFS.tanpuraVol);
+      saveCurrentPreferences();
     });
   }
 

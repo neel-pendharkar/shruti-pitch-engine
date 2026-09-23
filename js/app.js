@@ -41,6 +41,60 @@ const TONIC_FREQUENCIES = {
   "G#": 415.30
 };
 
+// LocalStorage Preferences Key & Baseline Defaults
+const PREFS_KEY = "shruti_engine_preferences_v2";
+
+const DEFAULT_PREFS = {
+  tonic: "C#",
+  raga: "bhoop",
+  vocalSmoothing: 0.85,
+  adjustmentSpeed: 0.35,
+  lockCutoff: 10,
+  noiseGate: 0.008,
+  timeWindow: 10,
+  tanpuraVol: 0.45
+};
+
+function getSavedPreferences() {
+  try {
+    const raw = localStorage.getItem(PREFS_KEY);
+    if (!raw) return { ...DEFAULT_PREFS };
+    return { ...DEFAULT_PREFS, ...JSON.parse(raw) };
+  } catch (err) {
+    console.warn("Could not load preferences from localStorage:", err);
+    return { ...DEFAULT_PREFS };
+  }
+}
+
+function saveCurrentPreferences() {
+  const prefs = {
+    tonic: document.getElementById("tonicSelect")?.value || "C#",
+    raga: currentRaga?.id || "bhoop",
+    vocalSmoothing: parseFloat(document.getElementById("vocalSmoothingSlider")?.value || 0.85),
+    adjustmentSpeed: parseFloat(document.getElementById("adjustmentSpeedSlider")?.value || 0.35),
+    lockCutoff: parseFloat(document.getElementById("lockCutoffSlider")?.value || 10),
+    noiseGate: parseFloat(document.getElementById("noiseGateSlider")?.value || 0.008),
+    timeWindow: parseFloat(document.getElementById("timeWindowSlider")?.value || 10),
+    tanpuraVol: parseFloat(document.getElementById("tanpuraVol")?.value || 0.45)
+  };
+  try {
+    localStorage.setItem(PREFS_KEY, JSON.stringify(prefs));
+    flashSavedBadge();
+  } catch (err) {
+    console.warn("Could not save preferences to localStorage:", err);
+  }
+}
+
+function flashSavedBadge() {
+  const badge = document.getElementById("saveBadge");
+  if (badge) {
+    badge.classList.add("flash");
+    setTimeout(() => {
+      badge.classList.remove("flash");
+    }, 600);
+  }
+}
+
 window.addEventListener("DOMContentLoaded", () => {
   initUI();
 });
@@ -48,6 +102,9 @@ window.addEventListener("DOMContentLoaded", () => {
 function initUI() {
   const canvasElement = document.getElementById("pitchCanvas");
   pitchCanvas = new PitchCanvas(canvasElement);
+
+  // Load user preferences or fall back to defaults
+  const prefs = getSavedPreferences();
 
   // Initialize Raga selector
   const ragaSelect = document.getElementById("ragaSelect");
@@ -58,7 +115,8 @@ function initUI() {
     ragaSelect.appendChild(opt);
   });
 
-  currentRaga = RAGAS[0];
+  currentRaga = getRagaById(prefs.raga) || RAGAS[0];
+  ragaSelect.value = currentRaga.id;
   pitchCanvas.setRaga(currentRaga);
   updateRagaInfo(currentRaga);
 
@@ -67,7 +125,6 @@ function initUI() {
     pitchCanvas.setRaga(currentRaga);
     updateRagaInfo(currentRaga);
     if (tanpura) {
-      // If raga omits Pa (like Marwa), switch tanpura 1st string to Ni or Ma
       if (currentRaga.id === "marwa") {
         tanpura.setFirstString("Ni");
       } else if (currentRaga.id === "malkauns") {
@@ -76,14 +133,19 @@ function initUI() {
         tanpura.setFirstString("Pa");
       }
     }
+    saveCurrentPreferences();
   });
 
   // Tonic selector
   const tonicSelect = document.getElementById("tonicSelect");
-  tonicSelect.value = "C#";
+  tonicSelect.value = prefs.tonic || "C#";
+  baseFreq = TONIC_FREQUENCIES[tonicSelect.value] || 277.18;
+  updateBaseFreq(baseFreq);
+
   tonicSelect.addEventListener("change", (e) => {
     baseFreq = TONIC_FREQUENCIES[e.target.value] || 277.18;
     updateBaseFreq(baseFreq);
+    saveCurrentPreferences();
   });
 
   // Microphone toggle button
@@ -94,13 +156,21 @@ function initUI() {
   const calibrateBtn = document.getElementById("calibrateBtn");
   calibrateBtn.addEventListener("click", startCalibration);
 
-  // Tanpura toggle
+  // Tanpura toggle & volume controls (synchronized between toolbar and drawer)
   const tanpuraBtn = document.getElementById("tanpuraBtn");
   const tanpuraVol = document.getElementById("tanpuraVol");
+  const tanpuraVolDrawer = document.getElementById("tanpuraVolDrawer");
+  const tanpuraVolVal = document.getElementById("tanpuraVolVal");
+
+  if (tanpuraVol) tanpuraVol.value = prefs.tanpuraVol;
+  if (tanpuraVolDrawer) tanpuraVolDrawer.value = prefs.tanpuraVol;
+  if (tanpuraVolVal) tanpuraVolVal.textContent = `${Math.round(prefs.tanpuraVol * 100)}%`;
+
   tanpuraBtn.addEventListener("click", () => {
     if (!audioCtx) initAudio();
     if (!tanpura) tanpura = new TanpuraDrone(audioCtx);
     tanpura.setBaseFreq(baseFreq);
+    tanpura.setVolume(parseFloat(tanpuraVol.value));
 
     if (tanpura.isPlaying) {
       tanpura.stop();
@@ -113,56 +183,147 @@ function initUI() {
     }
   });
 
-  tanpuraVol.addEventListener("input", (e) => {
-    if (tanpura) tanpura.setVolume(parseFloat(e.target.value));
-  });
+  const syncTanpuraVol = (val) => {
+    if (tanpuraVol) tanpuraVol.value = val;
+    if (tanpuraVolDrawer) tanpuraVolDrawer.value = val;
+    if (tanpuraVolVal) tanpuraVolVal.textContent = `${Math.round(val * 100)}%`;
+    if (tanpura) tanpura.setVolume(val);
+    saveCurrentPreferences();
+  };
 
-  // Sensitivity / Noise Gate slider
-  const noiseGateSlider = document.getElementById("noiseGateSlider");
-  noiseGateSlider.addEventListener("input", (e) => {
-    if (pitchDetector) {
-      pitchDetector.minRMS = parseFloat(e.target.value);
-    }
-  });
+  if (tanpuraVol) tanpuraVol.addEventListener("input", (e) => syncTanpuraVol(parseFloat(e.target.value)));
+  if (tanpuraVolDrawer) tanpuraVolDrawer.addEventListener("input", (e) => syncTanpuraVol(parseFloat(e.target.value)));
 
-  // Vocal Smoothing slider
-  const vocalSmoothingSlider = document.getElementById("vocalSmoothingSlider");
-  if (vocalSmoothingSlider) {
-    vocalSmoothingSlider.addEventListener("input", (e) => {
-      vocalSmoother.setSmoothing(parseFloat(e.target.value));
+  // Expandable Drawer Toggle & Close
+  const dialsDrawer = document.getElementById("dialsDrawer");
+  const dialsToggleBtn = document.getElementById("dialsToggleBtn");
+  const closeDrawerBtn = document.getElementById("closeDrawerBtn");
+
+  if (dialsToggleBtn && dialsDrawer) {
+    dialsToggleBtn.addEventListener("click", () => {
+      dialsDrawer.classList.toggle("open");
+      dialsToggleBtn.classList.toggle("active");
     });
   }
 
-  // Adjustment Speed slider (speed of adaptation / response time)
+  if (closeDrawerBtn && dialsDrawer) {
+    closeDrawerBtn.addEventListener("click", () => {
+      dialsDrawer.classList.remove("open");
+      if (dialsToggleBtn) dialsToggleBtn.classList.remove("active");
+    });
+  }
+
+  // Vocal Smoothing slider
+  const vocalSmoothingSlider = document.getElementById("vocalSmoothingSlider");
+  const vocalSmoothingVal = document.getElementById("vocalSmoothingVal");
+  if (vocalSmoothingSlider) {
+    vocalSmoothingSlider.value = prefs.vocalSmoothing;
+    if (vocalSmoothingVal) vocalSmoothingVal.textContent = prefs.vocalSmoothing.toFixed(2);
+    vocalSmoother.setSmoothing(prefs.vocalSmoothing);
+
+    vocalSmoothingSlider.addEventListener("input", (e) => {
+      const val = parseFloat(e.target.value);
+      vocalSmoother.setSmoothing(val);
+      if (vocalSmoothingVal) vocalSmoothingVal.textContent = val.toFixed(2);
+      saveCurrentPreferences();
+    });
+  }
+
+  // Adjustment Speed slider
   const adjustmentSpeedSlider = document.getElementById("adjustmentSpeedSlider");
+  const adjustmentSpeedVal = document.getElementById("adjustmentSpeedVal");
   if (adjustmentSpeedSlider) {
+    adjustmentSpeedSlider.value = prefs.adjustmentSpeed;
+    if (adjustmentSpeedVal) adjustmentSpeedVal.textContent = prefs.adjustmentSpeed.toFixed(2);
+    vocalSmoother.setAdjustmentSpeed(prefs.adjustmentSpeed);
+
     adjustmentSpeedSlider.addEventListener("input", (e) => {
-      vocalSmoother.setAdjustmentSpeed(parseFloat(e.target.value));
+      const val = parseFloat(e.target.value);
+      vocalSmoother.setAdjustmentSpeed(val);
+      if (adjustmentSpeedVal) adjustmentSpeedVal.textContent = val.toFixed(2);
+      saveCurrentPreferences();
     });
   }
 
   // Resonance Lock Cutoff slider (tolerance for pure harmonic lock)
   const lockCutoffSlider = document.getElementById("lockCutoffSlider");
   const lockCutoffVal = document.getElementById("lockCutoffVal");
+  resonanceThreshold = prefs.lockCutoff || 10.0;
   if (lockCutoffSlider) {
+    lockCutoffSlider.value = resonanceThreshold;
+    if (lockCutoffVal) lockCutoffVal.textContent = `±${resonanceThreshold.toFixed(0)}¢`;
+
     lockCutoffSlider.addEventListener("input", (e) => {
       resonanceThreshold = parseFloat(e.target.value);
       if (lockCutoffVal) lockCutoffVal.textContent = `±${resonanceThreshold.toFixed(0)}¢`;
       updateArcLockZone(resonanceThreshold);
+      saveCurrentPreferences();
     });
   }
 
-  // Initialize Dynamic Arc Gauge Lock Zone to default cutoff (±10¢)
+  // Initialize Dynamic Arc Gauge Lock Zone to cutoff
   updateArcLockZone(resonanceThreshold);
 
-  // Time Window / Scroll Speed slider (holding notes over time)
+  // Noise Gate slider
+  const noiseGateSlider = document.getElementById("noiseGateSlider");
+  const noiseGateVal = document.getElementById("noiseGateVal");
+  if (noiseGateSlider) {
+    noiseGateSlider.value = prefs.noiseGate;
+    if (noiseGateVal) noiseGateVal.textContent = prefs.noiseGate.toFixed(3);
+    if (pitchDetector) pitchDetector.minRMS = prefs.noiseGate;
+
+    noiseGateSlider.addEventListener("input", (e) => {
+      const val = parseFloat(e.target.value);
+      if (pitchDetector) pitchDetector.minRMS = val;
+      if (noiseGateVal) noiseGateVal.textContent = val.toFixed(3);
+      saveCurrentPreferences();
+    });
+  }
+
+  // Time Window / Scroll Speed slider
   const timeWindowSlider = document.getElementById("timeWindowSlider");
   const timeWindowVal = document.getElementById("timeWindowVal");
   if (timeWindowSlider) {
+    timeWindowSlider.value = prefs.timeWindow;
+    if (timeWindowVal) timeWindowVal.textContent = `${prefs.timeWindow}s`;
+    pitchCanvas.setTimeWindow(prefs.timeWindow);
+
     timeWindowSlider.addEventListener("input", (e) => {
       const sec = parseFloat(e.target.value);
       pitchCanvas.setTimeWindow(sec);
       if (timeWindowVal) timeWindowVal.textContent = `${sec}s`;
+      saveCurrentPreferences();
+    });
+  }
+
+  // Reset to Defaults Button
+  const resetDefaultsBtn = document.getElementById("resetDefaultsBtn");
+  if (resetDefaultsBtn) {
+    resetDefaultsBtn.addEventListener("click", () => {
+      // Apply baseline defaults
+      vocalSmoothingSlider.value = DEFAULT_PREFS.vocalSmoothing;
+      if (vocalSmoothingVal) vocalSmoothingVal.textContent = DEFAULT_PREFS.vocalSmoothing.toFixed(2);
+      vocalSmoother.setSmoothing(DEFAULT_PREFS.vocalSmoothing);
+
+      adjustmentSpeedSlider.value = DEFAULT_PREFS.adjustmentSpeed;
+      if (adjustmentSpeedVal) adjustmentSpeedVal.textContent = DEFAULT_PREFS.adjustmentSpeed.toFixed(2);
+      vocalSmoother.setAdjustmentSpeed(DEFAULT_PREFS.adjustmentSpeed);
+
+      lockCutoffSlider.value = DEFAULT_PREFS.lockCutoff;
+      resonanceThreshold = DEFAULT_PREFS.lockCutoff;
+      if (lockCutoffVal) lockCutoffVal.textContent = `±${resonanceThreshold.toFixed(0)}¢`;
+      updateArcLockZone(resonanceThreshold);
+
+      noiseGateSlider.value = DEFAULT_PREFS.noiseGate;
+      if (noiseGateVal) noiseGateVal.textContent = DEFAULT_PREFS.noiseGate.toFixed(3);
+      if (pitchDetector) pitchDetector.minRMS = DEFAULT_PREFS.noiseGate;
+
+      timeWindowSlider.value = DEFAULT_PREFS.timeWindow;
+      if (timeWindowVal) timeWindowVal.textContent = `${DEFAULT_PREFS.timeWindow}s`;
+      pitchCanvas.setTimeWindow(DEFAULT_PREFS.timeWindow);
+
+      syncTanpuraVol(DEFAULT_PREFS.tanpuraVol);
+      saveCurrentPreferences();
     });
   }
 

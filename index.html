@@ -25,6 +25,14 @@
   <!-- Main Container -->
   <main>
 
+    <!-- Research Disclaimer Banner -->
+    <div class="disclaimer-banner">
+      <div class="disclaimer-content">
+        <span class="disclaimer-tag">Verified Ragas</span>
+        <span>Acoustic 22-Shruti microtonal tuning for <strong>Raga Bhoop</strong> and <strong>Bhimpalas</strong> is perfected and verified. For research collaborations or expanding to more ragas: <a href="mailto:neel.pendharkar@gmail.com" class="disclaimer-link">neel.pendharkar@gmail.com</a></span>
+      </div>
+    </div>
+
     <!-- Top Controls Bar -->
     <section class="controls-bar">
       <!-- Mic Button -->
@@ -70,38 +78,161 @@
         <label class="control-label">Acoustic Tanpura</label>
         <div style="display: flex; align-items: center; gap: 8px;">
           <button id="tanpuraBtn" class="btn btn-secondary">Start Tanpura</button>
-          <input type="range" id="tanpuraVol" min="0" max="1" step="0.05" value="0.45" style="width: 70px;" title="Tanpura Volume">
+          <input type="range" id="tanpuraVol" min="0" max="1" step="0.05" value="0.45" style="width: 65px;" title="Tanpura Volume">
         </div>
       </div>
 
-      <!-- Noise Gate -->
-      <div class="control-item">
-        <label class="control-label" for="noiseGateSlider">Noise Gate</label>
-        <input type="range" id="noiseGateSlider" min="0.002" max="0.04" step="0.002" value="0.008" style="width: 80px;" title="Adjust microphone sensitivity threshold">
-      </div>
+      <!-- Dials & Guide Drawer Toggle Button -->
+      <button id="dialsToggleBtn" class="btn btn-secondary btn-drawer-toggle" title="Open Precision Dials, Audio Settings, and Singer's Guide">
+        ⚙️ Dials & Guide <span id="saveBadge" class="save-badge">✓ Saved</span>
+      </button>
+    </section>
 
-      <!-- Vocal Smoothing -->
-      <div class="control-item">
-        <label class="control-label" for="vocalSmoothingSlider">Vocal Smoothing</label>
-        <input type="range" id="vocalSmoothingSlider" min="0" max="0.95" step="0.05" value="0.85" style="width: 80px;" title="Adjust jitter smoothing (0 = raw instantaneous, 0.95 = ultra-stable)">
-      </div>
+    <!-- Expandable Precision Dials & Singer's Help Drawer -->
+    <section id="dialsDrawer" class="dials-drawer collapsed">
+      <div class="drawer-inner">
+        <!-- Drawer Header -->
+        <div class="drawer-header">
+          <div class="drawer-title-group">
+            <h3 class="drawer-title">⚙️ Precision Audio Dials & Vocalist Guide</h3>
+            <p class="drawer-subtitle">Customize vocal jitter smoothing, resonance lock tolerance, and explore 22-Shruti intonation guidelines.</p>
+          </div>
+          <div class="drawer-actions">
+            <button id="resetDefaultsBtn" class="btn btn-sm btn-outline" title="Reset all sliders to recommended baseline settings">
+              ↺ Reset to Defaults
+            </button>
+            <button id="closeDrawerBtn" class="btn-close-drawer" title="Close panel">✕</button>
+          </div>
+        </div>
 
-      <!-- Adjustment Speed -->
-      <div class="control-item">
-        <label class="control-label" for="adjustmentSpeedSlider">Adjustment Speed</label>
-        <input type="range" id="adjustmentSpeedSlider" min="0.05" max="1.0" step="0.05" value="0.35" style="width: 80px;" title="Reaction speed (Slow = steady average for holding notes, Fast = instant tracking)">
-      </div>
+        <!-- Two-Column Layout: Dials Grid (Left) + Help Guides (Right) -->
+        <div class="drawer-body-grid">
+          <!-- Left Column: Precision Audio Dials -->
+          <div class="dials-column">
+            <h4 class="column-heading">🎛️ Audio & Tuning Dials (Auto-Saved)</h4>
 
-      <!-- Resonance Lock Cutoff -->
-      <div class="control-item">
-        <label class="control-label" for="lockCutoffSlider">Lock Cutoff (<span id="lockCutoffVal" style="color: var(--accent-emerald);">±10¢</span>)</label>
-        <input type="range" id="lockCutoffSlider" min="2" max="20" step="1" value="10" style="width: 80px;" title="Cents tolerance for harmonic resonance lock (default ±10¢, adjustable up to ±20¢)">
-      </div>
+            <div class="dial-cards-grid">
+              <!-- Dial 1: Vocal Smoothing -->
+              <div class="dial-card">
+                <div class="dial-card-header">
+                  <span class="dial-name">Vocal Smoothing</span>
+                  <span id="vocalSmoothingVal" class="dial-badge">0.85</span>
+                </div>
+                <input type="range" id="vocalSmoothingSlider" min="0" max="0.95" step="0.05" value="0.85" class="dial-range">
+                <div class="dial-range-labels">
+                  <span>Raw (0.0)</span>
+                  <span>Ultra-Stable (0.95)</span>
+                </div>
+                <p class="dial-hint">9-sample median filter + adaptive EMA. Filters natural vocal vibrato and glottal fry so the needle tracks your true pitch center.</p>
+              </div>
 
-      <!-- Time Span / Scroll Speed -->
-      <div class="control-item">
-        <label class="control-label" for="timeWindowSlider">Time Span (<span id="timeWindowVal" style="color: var(--accent-gold);">10s</span>)</label>
-        <input type="range" id="timeWindowSlider" min="3" max="25" step="1" value="10" style="width: 80px;" title="Seconds visible on screen for observing note holds over time">
+              <!-- Dial 2: Lock Cutoff (Tolerance) -->
+              <div class="dial-card highlight">
+                <div class="dial-card-header">
+                  <span class="dial-name">Lock Cutoff (Tolerance)</span>
+                  <span id="lockCutoffVal" class="dial-badge emerald">±10¢</span>
+                </div>
+                <input type="range" id="lockCutoffSlider" min="2" max="20" step="1" value="10" class="dial-range">
+                <div class="dial-range-labels">
+                  <span>Strict (±2¢)</span>
+                  <span>Forgiving (±20¢)</span>
+                </div>
+                <p class="dial-hint">Defines the emerald sweet spot on the arc dial. Set tighter (±4¢) for rigorous mastery, or wider (±10¢ to ±15¢) for comfortable practice.</p>
+              </div>
+
+              <!-- Dial 3: Adjustment Speed -->
+              <div class="dial-card">
+                <div class="dial-card-header">
+                  <span class="dial-name">Adjustment Speed</span>
+                  <span id="adjustmentSpeedVal" class="dial-badge">0.35</span>
+                </div>
+                <input type="range" id="adjustmentSpeedSlider" min="0.05" max="1.0" step="0.05" value="0.35" class="dial-range">
+                <div class="dial-range-labels">
+                  <span>Steady Average (0.05)</span>
+                  <span>Fast Tracking (1.0)</span>
+                </div>
+                <p class="dial-hint">Controls reaction time. Lower values (0.2–0.35) stabilize long note holds (alap). Higher values track fast phrases and taans.</p>
+              </div>
+
+              <!-- Dial 4: Microphone Noise Gate -->
+              <div class="dial-card">
+                <div class="dial-card-header">
+                  <span class="dial-name">Noise Gate</span>
+                  <span id="noiseGateVal" class="dial-badge">0.008</span>
+                </div>
+                <input type="range" id="noiseGateSlider" min="0.002" max="0.04" step="0.002" value="0.008" class="dial-range">
+                <div class="dial-range-labels">
+                  <span>Sensitive (0.002)</span>
+                  <span>Heavy (0.04)</span>
+                </div>
+                <p class="dial-hint">Rejects ambient room noise, computer fans, and breath sounds between singing phrases.</p>
+              </div>
+
+              <!-- Dial 5: Timeline Scroll Span -->
+              <div class="dial-card">
+                <div class="dial-card-header">
+                  <span class="dial-name">Timeline Span</span>
+                  <span id="timeWindowVal" class="dial-badge gold">10s</span>
+                </div>
+                <input type="range" id="timeWindowSlider" min="3" max="25" step="1" value="10" class="dial-range">
+                <div class="dial-range-labels">
+                  <span>Quick (3s)</span>
+                  <span>Long Hold (25s)</span>
+                </div>
+                <p class="dial-hint">Number of seconds visible across the screen. Use 15s–25s for holding long notes (swara sadhana) without your pitch scrolling off.</p>
+              </div>
+
+              <!-- Dial 6: Tanpura Volume -->
+              <div class="dial-card">
+                <div class="dial-card-header">
+                  <span class="dial-name">Tanpura Volume</span>
+                  <span id="tanpuraVolVal" class="dial-badge">45%</span>
+                </div>
+                <input type="range" id="tanpuraVolDrawer" min="0" max="1" step="0.05" value="0.45" class="dial-range">
+                <div class="dial-range-labels">
+                  <span>Mute (0%)</span>
+                  <span>Full (100%)</span>
+                </div>
+                <p class="dial-hint">Acoustic synthesized multi-harmonic tanpura with jawari bridge overtones to accompany your vocal practice.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column: Singer's Guide & Help -->
+          <div class="help-column">
+            <h4 class="column-heading">📖 Singer's Guide & 22-Shruti Science</h4>
+
+            <div class="help-cards-stack">
+              <div class="help-card">
+                <div class="help-card-title">🎯 The Analog Arc Dial</div>
+                <p class="help-card-text">
+                  The curved needle swings along a 100° arc from <strong>-50¢ (flat)</strong> to <strong>+50¢ (sharp)</strong>. The center 0° tick is pure integer acoustic harmony. When your voice enters the glowing emerald lock zone, you achieve true resonance with the tanpura.
+                </p>
+              </div>
+
+              <div class="help-card">
+                <div class="help-card-title">🌿 Why Shrutis Differ From Western Tuners</div>
+                <p class="help-card-text">
+                  Western piano and guitar tuners enforce 12-Tone Equal Temperament (12-TET). Indian Classical Music is rooted in <strong>5-limit Just Intonation</strong>. For example, <em>Shuddha Gandhar</em> in Bhoopali (5/4) is <strong>13.7¢ flatter</strong> than a keyboard tuner, producing a sweet, beatless harmonic lock.
+                </p>
+              </div>
+
+              <div class="help-card">
+                <div class="help-card-title">🧘 Swara Sadhana (Long Sustained Holds)</div>
+                <p class="help-card-text">
+                  Hold a note steadily for more than 1.2 seconds. The engine automatically enters Hold Mode, calculating your sustained hold duration, average pitch drift (±¢), and harmonic resonance lock percentage.
+                </p>
+              </div>
+
+              <div class="help-card">
+                <div class="help-card-title">💾 Persistent Browser Memory</div>
+                <p class="help-card-text">
+                  Every dial adjustment, your selected tonic ($C\#$), and active raga are <strong>automatically saved</strong> to your browser's local storage. Your personalized tuning environment is restored whenever you return.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 
