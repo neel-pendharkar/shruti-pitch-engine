@@ -1,0 +1,1918 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>22-Shruti Pitch Engine — Indian Classical Pitch Recognizer</title>
+  <style>
+/* Modern Pro-Audio Dark Studio Interface */
+:root {
+  --bg-main: #090d16;
+  --bg-panel: #111726;
+  --bg-card: #182238;
+  --border-color: rgba(255, 255, 255, 0.08);
+  --border-active: rgba(56, 189, 248, 0.35);
+  
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --text-dim: #64748b;
+  
+  --accent-cyan: #38bdf8;
+  --accent-gold: #fbbf24;
+  --accent-emerald: #10b981;
+  --accent-ruby: #f43f5e;
+  --accent-purple: #c084fc;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+
+/* Header */
+header {
+  background-color: var(--bg-panel);
+  border-bottom: 1px solid var(--border-color);
+  padding: 14px 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo-icon {
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, var(--accent-gold), var(--accent-cyan));
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  color: #000;
+  font-size: 18px;
+}
+
+h1 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.subtitle {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.status-badge {
+  padding: 5px 12px;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  transition: all 0.25s ease;
+}
+
+.status-badge.inactive {
+  background: rgba(100, 116, 139, 0.2);
+  color: var(--text-dim);
+  border: 1px solid rgba(100, 116, 139, 0.3);
+}
+
+.status-badge.active {
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--accent-emerald);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.25);
+}
+
+/* Main Layout */
+main {
+  flex: 1;
+  padding: 20px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  max-width: 1440px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Controls Bar */
+.controls-bar {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 14px 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.control-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.control-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+select, input[type="range"] {
+  background: var(--bg-card);
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+select:focus {
+  border-color: var(--accent-cyan);
+}
+
+.freq-pill {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  color: var(--accent-gold);
+  font-family: monospace;
+}
+
+/* Buttons */
+.btn {
+  padding: 9px 18px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-primary {
+  background: var(--accent-cyan);
+  color: #04121d;
+}
+
+.btn-primary:hover {
+  background: #7dd3fc;
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.4);
+}
+
+.btn-primary.active {
+  background: var(--accent-ruby);
+  color: #fff;
+  box-shadow: 0 0 16px rgba(244, 63, 94, 0.4);
+}
+
+.btn-secondary {
+  background: var(--bg-card);
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+}
+
+.btn-secondary:hover {
+  border-color: var(--accent-cyan);
+}
+
+.btn-secondary.active {
+  background: rgba(251, 191, 36, 0.15);
+  color: var(--accent-gold);
+  border-color: var(--accent-gold);
+}
+
+.btn.recording {
+  background: var(--accent-ruby);
+  color: #fff;
+  animation: pulse 1s infinite alternate;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.03); }
+}
+
+/* Live Display HUD */
+.hud-container {
+  background: linear-gradient(180deg, #131c2e, #0f1624);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  border-radius: 14px;
+  padding: 20px 28px;
+  display: grid;
+  grid-template-columns: 200px 1fr 220px;
+  gap: 24px;
+  align-items: center;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+  position: relative;
+  overflow: hidden;
+}
+
+.hud-swara-box {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-right: 1px solid var(--border-color);
+  padding-right: 20px;
+}
+
+.hud-swara-main {
+  font-size: 3.8rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--accent-cyan);
+  letter-spacing: -0.04em;
+  text-shadow: 0 0 20px rgba(56, 189, 248, 0.35);
+}
+
+.hud-shruti-sub {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-top: 6px;
+  font-weight: 500;
+}
+
+.hud-ratio-tag {
+  font-size: 0.75rem;
+  font-family: monospace;
+  color: var(--accent-gold);
+  margin-top: 4px;
+}
+
+/* Meter & Deviation */
+.hud-meter-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.hud-deviation {
+  font-size: 2.2rem;
+  font-weight: 800;
+  font-family: monospace;
+  letter-spacing: -0.02em;
+  color: var(--text-dim);
+  transition: color 0.15s;
+}
+
+.hud-deviation.lock {
+  color: var(--accent-emerald);
+  text-shadow: 0 0 16px rgba(16, 185, 129, 0.5);
+}
+
+.hud-deviation.close {
+  color: var(--accent-gold);
+}
+
+.hud-deviation.off {
+  color: var(--accent-ruby);
+}
+
+.meter-track {
+  width: 100%;
+  max-width: 500px;
+  height: 12px;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 9999px;
+  position: relative;
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+}
+
+.meter-center-tick {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: rgba(255, 255, 255, 0.4);
+  transform: translateX(-50%);
+  z-index: 2;
+}
+
+.meter-fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: var(--accent-cyan);
+  transition: width 0.05s ease-out, left 0.05s ease-out;
+}
+
+.meter-fill.lock {
+  background: var(--accent-emerald);
+  box-shadow: 0 0 12px var(--accent-emerald);
+}
+
+.meter-fill.close {
+  background: var(--accent-gold);
+}
+
+.meter-fill.off {
+  background: var(--accent-ruby);
+}
+
+.meter-labels {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 500px;
+  font-size: 0.68rem;
+  font-family: monospace;
+  color: var(--text-dim);
+}
+
+/* Lock Beacon & Frequency Box */
+.hud-telemetry-box {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  border-left: 1px solid var(--border-color);
+  padding-left: 20px;
+  gap: 8px;
+}
+
+.hud-freq {
+  font-size: 1.4rem;
+  font-weight: 700;
+  font-family: monospace;
+  color: var(--text-main);
+}
+
+.lock-beacon {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--accent-emerald);
+  letter-spacing: 0.06em;
+  opacity: 0;
+  transform: scale(0.95);
+  transition: all 0.2s ease;
+}
+
+.lock-beacon.visible {
+  opacity: 1;
+  transform: scale(1);
+  box-shadow: 0 0 16px rgba(16, 185, 129, 0.3);
+}
+
+.beacon-dot {
+  width: 7px;
+  height: 7px;
+  background: var(--accent-emerald);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--accent-emerald);
+}
+
+/* Canvas Container */
+.canvas-wrapper {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.6);
+  position: relative;
+  flex: 1;
+  min-height: 440px;
+  display: flex;
+}
+
+#pitchCanvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Raga Info Strip */
+.raga-info-strip {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 12px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.raga-info-strip span strong {
+  color: var(--text-main);
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .hud-container {
+    grid-template-columns: 1fr;
+    text-align: center;
+    gap: 16px;
+  }
+  .hud-swara-box, .hud-telemetry-box {
+    border: none;
+    padding: 0;
+    align-items: center;
+  }
+}
+
+</style>
+</head>
+<body>
+
+  <!-- Top Header -->
+  <header>
+    <div class="logo-group">
+      <div class="logo-icon">श्रु</div>
+      <div>
+        <h1>22-Shruti Real-Time Pitch Engine</h1>
+        <div class="subtitle">Microtonal Just Intonation for Indian Classical Music</div>
+      </div>
+    </div>
+    <div>
+      <span id="statusIndicator" class="status-badge inactive">Mic Inactive</span>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main>
+
+    <!-- Top Controls Bar -->
+    <section class="controls-bar">
+      <!-- Mic Button -->
+      <button id="micBtn" class="btn btn-primary">
+        🎤 Turn ON Microphone
+      </button>
+
+      <!-- Calibrate Sa -->
+      <button id="calibrateBtn" class="btn btn-secondary" title="Sing your Sa steadily for 1.5 seconds to lock your personal tonic">
+        🎯 Calibrate Sa
+      </button>
+
+      <!-- Tonic / Sa Selection -->
+      <div class="control-item">
+        <label class="control-label" for="tonicSelect">Tonic (Sa)</label>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <select id="tonicSelect">
+            <option value="A">A (220.0 Hz)</option>
+            <option value="A#">A# / Bb (233.1 Hz)</option>
+            <option value="B">B (246.9 Hz)</option>
+            <option value="C">C (261.6 Hz)</option>
+            <option value="C#" selected>C# (277.2 Hz)</option>
+            <option value="D">D (293.7 Hz)</option>
+            <option value="D#">D# / Eb (311.1 Hz)</option>
+            <option value="E">E (329.6 Hz)</option>
+            <option value="F">F (349.2 Hz)</option>
+            <option value="F#">F# (370.0 Hz)</option>
+            <option value="G">G (392.0 Hz)</option>
+            <option value="G#">G# / Ab (415.3 Hz)</option>
+          </select>
+          <span id="saFreqDisplay" class="freq-pill">277.18 Hz</span>
+        </div>
+      </div>
+
+      <!-- Raga Selection -->
+      <div class="control-item">
+        <label class="control-label" for="ragaSelect">Active Raga</label>
+        <select id="ragaSelect"></select>
+      </div>
+
+      <!-- Tanpura Drone -->
+      <div class="control-item">
+        <label class="control-label">Acoustic Tanpura</label>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <button id="tanpuraBtn" class="btn btn-secondary">Start Tanpura</button>
+          <input type="range" id="tanpuraVol" min="0" max="1" step="0.05" value="0.45" style="width: 70px;" title="Tanpura Volume">
+        </div>
+      </div>
+
+      <!-- Noise Gate -->
+      <div class="control-item">
+        <label class="control-label" for="noiseGateSlider">Noise Gate</label>
+        <input type="range" id="noiseGateSlider" min="0.002" max="0.04" step="0.002" value="0.008" style="width: 80px;" title="Adjust microphone sensitivity threshold">
+      </div>
+
+      <!-- Vocal Smoothing -->
+      <div class="control-item">
+        <label class="control-label" for="vocalSmoothingSlider">Vocal Smoothing</label>
+        <input type="range" id="vocalSmoothingSlider" min="0" max="0.95" step="0.05" value="0.75" style="width: 80px;" title="Adjust jitter smoothing (0 = raw instantaneous, 0.95 = ultra-stable)">
+      </div>
+
+      <!-- Adjustment Speed -->
+      <div class="control-item">
+        <label class="control-label" for="adjustmentSpeedSlider">Adjustment Speed</label>
+        <input type="range" id="adjustmentSpeedSlider" min="0.05" max="1.0" step="0.05" value="0.50" style="width: 80px;" title="Reaction speed (Slow = steady average for holding notes, Fast = instant tracking)">
+      </div>
+
+      <!-- Time Span / Scroll Speed -->
+      <div class="control-item">
+        <label class="control-label" for="timeWindowSlider">Time Span (<span id="timeWindowVal" style="color: var(--accent-gold);">10s</span>)</label>
+        <input type="range" id="timeWindowSlider" min="3" max="25" step="1" value="10" style="width: 80px;" title="Seconds visible on screen for observing note holds over time">
+      </div>
+    </section>
+
+    <!-- LIVE DISPLAY HUD (Prominent Real-Time Readout) -->
+    <section class="hud-container">
+      <!-- Left: Detected Swara & Shruti Name -->
+      <div class="hud-swara-box">
+        <div id="hudSwaraName" class="hud-swara-main">—</div>
+        <div id="hudShrutiName" class="hud-shruti-sub">Turn ON mic to start singing...</div>
+        <div id="hudRatio" class="hud-ratio-tag">—</div>
+      </div>
+
+      <!-- Center: Large Cent Deviation & Bi-directional Meter -->
+      <div class="hud-meter-box">
+        <div id="hudDeviation" class="hud-deviation">—</div>
+        
+        <!-- -50¢ to +50¢ Visual Meter -->
+        <div class="meter-track">
+          <div class="meter-center-tick"></div>
+          <div id="hudMeterFill" class="meter-fill" style="width: 0%;"></div>
+        </div>
+
+        <div class="meter-labels">
+          <span>-50¢ (Flat)</span>
+          <span>-25¢</span>
+          <span style="color: var(--accent-emerald); font-weight: bold;">0¢ (Pure Ratio)</span>
+          <span>+25¢</span>
+          <span>+50¢ (Sharp)</span>
+        </div>
+      </div>
+
+      <!-- Right: Frequency & Resonance Lock Beacon -->
+      <div class="hud-telemetry-box">
+        <div id="hudFreq" class="hud-freq">— Hz</div>
+        <div id="hudLockBeacon" class="lock-beacon">
+          <span class="beacon-dot"></span>
+          <span>RESONANCE LOCK</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 60 FPS Scrolling Pitch Canvas -->
+    <section class="canvas-wrapper">
+      <canvas id="pitchCanvas"></canvas>
+    </section>
+
+    <!-- Bottom Raga Info Strip -->
+    <footer class="raga-info-strip">
+      <div>
+        <strong>Prahar:</strong> <span id="ragaPrahar">—</span> | 
+        <span id="ragaVadi">—</span>
+      </div>
+      <div>
+        <span id="ragaDesc">—</span>
+      </div>
+    </footer>
+
+  </main>
+
+  <!-- Application Scripts -->
+  <script>
+
+/* === File: data/shrutis.js === */
+// Master 22 Shrutis Database with exact rational fractions, cents, and traditional names
+const SHRUTIS = [
+  { id: 1,  name: "Kshiti",      swara: "Sa",  ratioStr: "1/1",     ratio: [1, 1],     cents: 0.0,    western: "C",  type: "achala" },
+  { id: 2,  name: "Teevra",      swara: "re₁", ratioStr: "256/243", ratio: [256, 243], cents: 90.22,  western: "Db-",type: "ati-komal", desc: "Pythagorean Limma (Todi, Shree, Marwa)" },
+  { id: 3,  name: "Kumudvati",   swara: "re₂", ratioStr: "16/15",   ratio: [16, 15],   cents: 111.73, western: "Db+",type: "komal",     desc: "Diatonic Semitone (Bhairav, Kalingada)" },
+  { id: 4,  name: "Manda",       swara: "Re₁", ratioStr: "10/9",    ratio: [10, 9],    cents: 182.40, western: "D-", type: "shuddha",   desc: "Minor Tone (Kafi, Bageshri)" },
+  { id: 5,  name: "Chandovati",  swara: "Re₂", ratioStr: "9/8",     ratio: [9, 8],     cents: 203.91, western: "D+", type: "shuddha",   desc: "Major Tone (Yaman, Bilawal, Bhoopali)" },
+  { id: 6,  name: "Dayavati",    swara: "ga₁", ratioStr: "32/27",   ratio: [32, 27],   cents: 294.13, western: "Eb-",type: "ati-komal", desc: "Grave Minor 3rd (Darbari Kanada, Todi)" },
+  { id: 7,  name: "Ranjani",     swara: "ga₂", ratioStr: "6/5",     ratio: [6, 5],     cents: 315.64, western: "Eb+",type: "komal",     desc: "Pure Minor 3rd (Bhairavi, Kafi, Asavari)" },
+  { id: 8,  name: "Raktika",     swara: "Ga₁", ratioStr: "5/4",     ratio: [5, 4],     cents: 386.31, western: "E-", type: "shuddha",   desc: "Pure Major 3rd (Yaman, Bhoopali, Bilawal)" },
+  { id: 9,  name: "Raudri",      swara: "Ga₂", ratioStr: "81/64",   ratio: [81, 64],   cents: 407.82, western: "E+", type: "shuddha",   desc: "Pythagorean Major 3rd (Khamaj)" },
+  { id: 10, name: "Krodha",      swara: "ma₁", ratioStr: "4/3",     ratio: [4, 3],     cents: 498.04, western: "F",  type: "shuddha",   desc: "Pure Perfect 4th (Bhairav, Kafi, Bilawal)" },
+  { id: 11, name: "Vajrika",     swara: "ma₂", ratioStr: "27/20",   ratio: [27, 20],   cents: 519.55, western: "F+", type: "shuddha",   desc: "Acute 4th (transitional inflection)" },
+  { id: 12, name: "Prasarini",   swara: "Ma'₁",ratioStr: "45/32",   ratio: [45, 32],   cents: 590.22, western: "F#-",type: "tivra",     desc: "Natural Tritone (Yaman, Kamod)" },
+  { id: 13, name: "Preeti",      swara: "Ma'₂",ratioStr: "729/512", ratio: [729, 512], cents: 611.73, western: "F#+",type: "tivra",     desc: "Pythagorean Sharp 4th (Todi, Puriya, Marwa)" },
+  { id: 14, name: "Marjani",     swara: "Pa",  ratioStr: "3/2",     ratio: [3, 2],     cents: 701.96, western: "G",  type: "achala",    desc: "Pure Perfect 5th (Invariant Anchor)" },
+  { id: 15, name: "Kshiti_dha",  swara: "dha₁",ratioStr: "128/81",  ratio: [128, 81],  cents: 792.18, western: "Ab-",type: "ati-komal", desc: "Pythagorean Flat 6th (Todi, Asavari)" },
+  { id: 16, name: "Rakta",       swara: "dha₂",ratioStr: "8/5",     ratio: [8, 5],     cents: 813.69, western: "Ab+",type: "komal",     desc: "Pure Minor 6th (Bhairav, Bhairavi)" },
+  { id: 17, name: "Sandipani",   swara: "Dha₁",ratioStr: "5/3",     ratio: [5, 3],     cents: 884.36, western: "A-", type: "shuddha",   desc: "Pure Major 6th (Bhoopali, Yaman, Desh)" },
+  { id: 18, name: "Alapini",     swara: "Dha₂",ratioStr: "27/16",   ratio: [27, 16],   cents: 905.87, western: "A+", type: "shuddha",   desc: "Pythagorean Major 6th (Bilawal)" },
+  { id: 19, name: "Madanti",     swara: "ni₁", ratioStr: "16/9",    ratio: [16, 9],    cents: 996.09, western: "Bb-",type: "ati-komal", desc: "Grave Minor 7th (Darbari, Jaunpuri)" },
+  { id: 20, name: "Rohini",      swara: "ni₂", ratioStr: "9/5",     ratio: [9, 5],     cents: 1017.60,western: "Bb+",type: "komal",     desc: "Pure Minor 7th (Bhairavi, Kafi, Khamaj)" },
+  { id: 21, name: "Ramya",       swara: "Ni₁", ratioStr: "15/8",    ratio: [15, 8],    cents: 1088.27,western: "B-", type: "shuddha",   desc: "Pure Major 7th (Yaman, Bihag, Bhairav)" },
+  { id: 22, name: "Ugra",        swara: "Ni₂", ratioStr: "243/128", ratio: [243, 128], cents: 1109.78,western: "B+", type: "shuddha",   desc: "Kakali Ni / Leading Tone (Shankara)" }
+];
+
+// Helper to look up a shruti by ID
+function getShrutiById(id) {
+  return SHRUTIS.find(s => s.id === id);
+}
+
+
+/* === File: data/ragas.js === */
+// Curated Ragas mapped to their exact 22-Shruti microtonal nodes
+const RAGAS = [
+  {
+    id: "bhoop",
+    name: "Raga Bhoop (Bhoopali)",
+    thaat: "Kalyan",
+    prahar: "First Part of Night (7 PM - 10 PM)",
+    vadi: "Ga₁",
+    samvadi: "Dha₁",
+    description: "Audava (pentatonic) raga of pure tranquility: Sa, Re₂, Ga₁, Pa, Dha₁. Perfect for vocal steady sustains.",
+    activeShrutis: [1, 5, 8, 14, 17], // Sa, Re₂(9/8), Ga₁(5/4), Pa(3/2), Dha₁(5/3)
+    andolanNotes: []
+  },
+  {
+    id: "bhimpalasi",
+    name: "Raga Bhimpalasi",
+    thaat: "Kafi",
+    prahar: "Late Afternoon (3 PM - 6 PM)",
+    vadi: "ma₁",
+    samvadi: "Sa",
+    description: "Poignant, tender afternoon raga. Centers around Vadi Madhyam (ma₁, 4/3). Its Komal Ni is the grave 16/9 (996¢), forming a pure 4th consonance directly with Madhyam.",
+    activeShrutis: [1, 4, 7, 10, 14, 17, 19], // Sa, Re₁(10/9), ga₂(6/5), ma₁(4/3), Pa(3/2), Dha₁(5/3), ni₁(16/9)
+    andolanNotes: []
+  },
+  {
+    id: "vrindavani_sarang",
+    name: "Raga Vrindavani Sarang",
+    thaat: "Kafi",
+    prahar: "Midday / Early Afternoon (12 PM - 3 PM)",
+    vadi: "Re₂",
+    samvadi: "Pa",
+    description: "Luminous, refreshing midday raga. Completely omits Ga and Dha, featuring both Nishads: Shuddha Ni (15/8) in ascent and Komal Ni (9/5) in descent.",
+    activeShrutis: [1, 5, 10, 14, 20, 21], // Sa, Re₂(9/8), ma₁(4/3), Pa(3/2), ni₂(9/5), Ni₁(15/8)
+    andolanNotes: []
+  },
+  {
+    id: "bhairav",
+    name: "Raga Bhairav",
+    thaat: "Bhairav",
+    prahar: "Early Dawn (6 AM - 9 AM)",
+    vadi: "dha₂",
+    samvadi: "re₂",
+    description: "Majestic, sacred dawn raga. Features the bold Diatonic Komal Re (16/15) and Komal Dha (8/5).",
+    activeShrutis: [1, 3, 8, 10, 14, 16, 21], // Sa, re₂(16/15), Ga₁(5/4), ma₁(4/3), Pa(3/2), dha₂(8/5), Ni₁(15/8)
+    andolanNotes: ["re₂", "dha₂"]
+  },
+  {
+    id: "todi",
+    name: "Miyan Ki Todi",
+    thaat: "Todi",
+    prahar: "Late Morning (9 AM - 12 PM)",
+    vadi: "dha₁",
+    samvadi: "ga₁",
+    description: "Deep, intense pathos. Features the ultra-flat Pythagorean Ati-Komal Re (256/243), Ati-Komal Ga (32/27), and Sharp Tivra Ma (729/512).",
+    activeShrutis: [1, 2, 6, 13, 14, 15, 21], // Sa, re₁(256/243), ga₁(32/27), Ma'₂(729/512), Pa(3/2), dha₁(128/81), Ni₁(15/8)
+    andolanNotes: ["ga₁", "dha₁"]
+  },
+  {
+    id: "yaman",
+    name: "Raga Yaman (Kalyan)",
+    thaat: "Kalyan",
+    prahar: "First Part of Night (7 PM - 10 PM)",
+    vadi: "Ga₁",
+    samvadi: "Ni₁",
+    description: "Serene, luminous evening raga. Features pure major intervals and the natural harmonic tritone Tivra Ma (45/32).",
+    activeShrutis: [1, 5, 8, 12, 14, 17, 21], // Sa, Re₂(9/8), Ga₁(5/4), Ma'₁(45/32), Pa(3/2), Dha₁(5/3), Ni₁(15/8)
+    andolanNotes: []
+  },
+  {
+    id: "darbari",
+    name: "Darbari Kanada",
+    thaat: "Asavari",
+    prahar: "Late Night (Midnight - 3 AM)",
+    vadi: "Re₂",
+    samvadi: "Pa",
+    description: "Grand, royal, melancholic. Renowned for slow, heavy microtonal oscillations (andolan) on ga₁ and dha₁.",
+    activeShrutis: [1, 5, 6, 10, 14, 15, 19], // Sa, Re₂(9/8), ga₁(32/27), ma₁(4/3), Pa(3/2), dha₁(128/81), ni₁(16/9)
+    andolanNotes: ["ga₁", "dha₁"]
+  },
+  {
+    id: "bhairavi",
+    name: "Raga Bhairavi",
+    thaat: "Bhairavi",
+    prahar: "Morning (or concluding all recitals)",
+    vadi: "ma₁",
+    samvadi: "Sa",
+    description: "All four komal notes (re, ga, dha, ni). In classical performance, it uses the pure 5-limit minor intervals.",
+    activeShrutis: [1, 3, 7, 10, 14, 16, 20], // Sa, re₂(16/15), ga₂(6/5), ma₁(4/3), Pa(3/2), dha₂(8/5), ni₂(9/5)
+    andolanNotes: []
+  },
+  {
+    id: "marwa",
+    name: "Raga Marwa",
+    thaat: "Marwa",
+    prahar: "Sunset / Sandhiprakash (5 PM - 7 PM)",
+    vadi: "Dha₁",
+    samvadi: "re₁",
+    description: "Restless, haunting twilight atmosphere. Hexatonic raga completely omitting Pancham (Pa), anchored by Ati-Komal Re and high Dha.",
+    activeShrutis: [1, 2, 8, 13, 17, 21], // Sa, re₁(256/243), Ga₁(5/4), Ma'₂(729/512), Dha₁(5/3), Ni₁(15/8)
+    andolanNotes: []
+  },
+  {
+    id: "all_22",
+    name: "All 22 Shrutis (Full Acoustic Lattice)",
+    thaat: "Universal",
+    prahar: "Anytime",
+    vadi: "Sa",
+    samvadi: "Pa",
+    description: "Displays every one of the 22 microtonal positions simultaneously across the canvas for free acoustic experimentation.",
+    activeShrutis: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22],
+    andolanNotes: []
+  }
+];
+
+function getRagaById(id) {
+  return RAGAS.find(r => r.id === id) || RAGAS[0];
+}
+
+
+/* === File: js/dsp.js === */
+// Real-Time DSP Pitch Detection Engine (McLeod Pitch Method / NSDF with Parabolic Interpolation)
+class PitchDetector {
+  constructor(sampleRate = 44100, bufferSize = 2048) {
+    this.sampleRate = sampleRate;
+    this.bufferSize = bufferSize;
+    this.nsdfBuffer = new Float32Array(bufferSize);
+    
+    // Voicing and detection thresholds
+    this.minFreq = 65;   // ~C2 (low male vocal range / bass kharaj)
+    this.maxFreq = 1200; // ~D6 (high female vocal range / tara saptak)
+    this.minRMS = 0.008; // Noise floor gate
+    this.clarityThreshold = 0.72; // Confidence threshold
+    
+    this.maxLag = Math.floor(sampleRate / this.minFreq);
+    this.minLag = Math.floor(sampleRate / this.maxFreq);
+  }
+
+  setSampleRate(rate) {
+    this.sampleRate = rate;
+    this.maxLag = Math.floor(rate / this.minFreq);
+    this.minLag = Math.floor(rate / this.maxFreq);
+  }
+
+  // Calculate RMS energy of buffer
+  calculateRMS(buffer) {
+    let sum = 0;
+    for (let i = 0; i < buffer.length; i++) {
+      sum += buffer[i] * buffer[i];
+    }
+    return Math.sqrt(sum / buffer.length);
+  }
+
+  // Normalized Square Difference Function (NSDF)
+  computeNSDF(buffer) {
+    const n = buffer.length;
+    const maxTau = Math.min(this.maxLag, Math.floor(n / 2));
+    
+    for (let tau = 0; tau < maxTau; tau++) {
+      let acf = 0;
+      let divisorM = 0;
+      
+      for (let i = 0; i < n - tau; i++) {
+        acf += buffer[i] * buffer[i + tau];
+        divisorM += buffer[i] * buffer[i] + buffer[i + tau] * buffer[i + tau];
+      }
+      
+      this.nsdfBuffer[tau] = divisorM > 0 ? (2 * acf) / divisorM : 0;
+    }
+  }
+
+  // Detect pitch using MPM peak picking & parabolic interpolation
+  detect(buffer) {
+    const rms = this.calculateRMS(buffer);
+    if (rms < this.minRMS) {
+      return { freq: null, clarity: 0, rms, voiced: false };
+    }
+
+    this.computeNSDF(buffer);
+
+    const maxTau = Math.min(this.maxLag, Math.floor(buffer.length / 2));
+    const peaks = [];
+    let isPositive = false;
+
+    // Find local maxima in positive regions
+    for (let tau = this.minLag; tau < maxTau - 1; tau++) {
+      if (this.nsdfBuffer[tau] > 0) {
+        isPositive = true;
+        if (
+          this.nsdfBuffer[tau] > this.nsdfBuffer[tau - 1] &&
+          this.nsdfBuffer[tau] >= this.nsdfBuffer[tau + 1]
+        ) {
+          // Local peak found
+          peaks.push({ tau, val: this.nsdfBuffer[tau] });
+        }
+      } else {
+        isPositive = false;
+      }
+    }
+
+    if (peaks.length === 0) {
+      return { freq: null, clarity: 0, rms, voiced: false };
+    }
+
+    // Find highest peak
+    let maxVal = -1;
+    for (const p of peaks) {
+      if (p.val > maxVal) {
+        maxVal = p.val;
+      }
+    }
+
+    // MPM heuristic: pick the first peak that is at least 80% as high as the maximum peak
+    // (prevents octave jumps / period doubling)
+    const threshold = maxVal * 0.82;
+    let chosenPeak = null;
+    for (const p of peaks) {
+      if (p.val >= threshold && p.val >= this.clarityThreshold) {
+        chosenPeak = p;
+        break;
+      }
+    }
+
+    if (!chosenPeak) {
+      return { freq: null, clarity: maxVal, rms, voiced: false };
+    }
+
+    // 3-point parabolic interpolation for sub-sample accuracy
+    const k = chosenPeak.tau;
+    const alpha = this.nsdfBuffer[k - 1];
+    const beta = this.nsdfBuffer[k];
+    const gamma = this.nsdfBuffer[k + 1];
+
+    const denom = 2 * (alpha - 2 * beta + gamma);
+    let delta = 0;
+    if (Math.abs(denom) > 1e-6) {
+      delta = (alpha - gamma) / denom;
+    }
+
+    const exactTau = k + delta;
+    const freq = this.sampleRate / exactTau;
+
+    if (freq < this.minFreq || freq > this.maxFreq) {
+      return { freq: null, clarity: chosenPeak.val, rms, voiced: false };
+    }
+
+    return {
+      freq,
+      clarity: chosenPeak.val,
+      rms,
+      voiced: true
+    };
+  }
+
+  // Convert Hz to cents relative to base tonic frequency
+  static hzToCents(freq, baseFreq) {
+    if (!freq || !baseFreq || freq <= 0 || baseFreq <= 0) return 0;
+    return 1200 * Math.log2(freq / baseFreq);
+  }
+
+  // Find matching swara and deviation in active raga
+  static matchSwara(rawCents, activeShrutiIds) {
+    // Normalize cents into 0-1200 range (Madhya Saptak)
+    let octave = Math.floor(rawCents / 1200);
+    let centsInOctave = rawCents - (octave * 1200);
+    if (centsInOctave < 0) {
+      centsInOctave += 1200;
+      octave -= 1;
+    }
+
+    let closestShruti = null;
+    let minDiff = Infinity;
+
+    // Check all active shrutis in this octave plus octave wraparounds (Sa at 0 and 1200)
+    for (const id of activeShrutiIds) {
+      const shruti = getShrutiById(id);
+      if (!shruti) continue;
+
+      const diff = Math.abs(centsInOctave - shruti.cents);
+      if (diff < minDiff) {
+        minDiff = diff;
+        closestShruti = shruti;
+      }
+      
+      // Also check against higher octave Sa (1200 cents)
+      if (shruti.cents === 0) {
+        const wrapDiff = Math.abs(centsInOctave - 1200);
+        if (wrapDiff < minDiff) {
+          minDiff = wrapDiff;
+          closestShruti = shruti;
+        }
+      }
+    }
+
+    if (!closestShruti) return null;
+
+    let targetCents = closestShruti.cents;
+    if (Math.abs(centsInOctave - 1200) < Math.abs(centsInOctave - 0) && closestShruti.cents === 0) {
+      targetCents = 1200;
+    }
+
+    const deviationCents = centsInOctave - targetCents;
+    const isResonating = Math.abs(deviationCents) <= 3.5; // Within 3.5 cents of pure ratio
+
+    return {
+      shruti: closestShruti,
+      octave,
+      centsInOctave,
+      deviationCents,
+      isResonating
+    };
+  }
+}
+
+// Adaptive Vocal Smoother: Median filter + adaptive EMA to kill vocal jitter without lag
+class VocalSmoother {
+  constructor(windowSize = 5, smoothingFactor = 0.70, adjustmentSpeed = 0.50) {
+    this.windowSize = windowSize;
+    this.smoothingFactor = smoothingFactor; // 0 = raw, 0.95 = very smooth
+    this.adjustmentSpeed = adjustmentSpeed; // 0.05 = slow/gradual, 1.0 = instant tracking
+    this.centsBuffer = [];
+    this.smoothedCents = null;
+    this.currentMatch = null;
+    this.matchCandidate = null;
+    this.matchCount = 0;
+    this.hysteresisThreshold = 3;
+
+    // Long sustain tracking for note holds
+    this.sustainFrames = 0;
+    this.sustainDevSum = 0;
+    this.sustainResonantFrames = 0;
+    this.lastFrameTime = performance.now();
+  }
+
+  setSmoothing(factor) {
+    this.smoothingFactor = Math.max(0, Math.min(0.95, factor));
+  }
+
+  setAdjustmentSpeed(speed) {
+    this.adjustmentSpeed = Math.max(0.05, Math.min(1.0, speed));
+  }
+
+  reset() {
+    this.centsBuffer = [];
+    this.smoothedCents = null;
+    this.currentMatch = null;
+    this.matchCandidate = null;
+    this.matchCount = 0;
+    this.sustainFrames = 0;
+    this.sustainDevSum = 0;
+    this.sustainResonantFrames = 0;
+  }
+
+  process(rawCents, activeShrutiIds) {
+    if (rawCents === null || isNaN(rawCents)) {
+      this.reset();
+      return null;
+    }
+
+    const now = performance.now();
+    this.lastFrameTime = now;
+
+    // 1. Maintain running window for median filtering (outlier / vocal fry rejection)
+    this.centsBuffer.push(rawCents);
+    if (this.centsBuffer.length > this.windowSize) {
+      this.centsBuffer.shift();
+    }
+
+    // Calculate median
+    const sorted = [...this.centsBuffer].sort((a, b) => a - b);
+    const medianCents = sorted[Math.floor(sorted.length / 2)];
+
+    // 2. Adaptive Exponential Smoothing modulated by adjustmentSpeed
+    if (this.smoothedCents === null) {
+      this.smoothedCents = medianCents;
+    } else {
+      const diff = Math.abs(medianCents - this.smoothedCents);
+
+      // If difference is large (> 70 cents), user made a deliberate vocal leap to a new note.
+      // Adaptively drop smoothing to zero so there is zero transition lag!
+      if (diff > 70) {
+        this.smoothedCents = medianCents;
+        this.sustainFrames = 0;
+        this.sustainDevSum = 0;
+        this.sustainResonantFrames = 0;
+      } else {
+        // Modulate alpha by both smoothingFactor and adjustmentSpeed
+        // Higher adjustmentSpeed -> higher alpha -> faster tracking of pitch shifts
+        // Lower adjustmentSpeed -> lower alpha -> slower, long-term steady average
+        const baseAlpha = 1.0 - (this.smoothingFactor * 0.88);
+        const alpha = Math.max(0.02, Math.min(1.0, baseAlpha * (this.adjustmentSpeed * 1.8)));
+        this.smoothedCents = (alpha * medianCents) + ((1.0 - alpha) * this.smoothedCents);
+      }
+    }
+
+    // 3. Match Swara on the stabilized pitch
+    const match = PitchDetector.matchSwara(this.smoothedCents, activeShrutiIds);
+    if (!match) return null;
+
+    // 4. Swara Hysteresis & Long Sustain Metrics
+    if (!this.currentMatch || match.shruti.id === this.currentMatch.shruti.id) {
+      this.currentMatch = match;
+      this.matchCandidate = null;
+      this.matchCount = 0;
+
+      // Accumulate sustain statistics for long note holding
+      this.sustainFrames++;
+      this.sustainDevSum += Math.abs(match.deviationCents);
+      if (match.isResonating) this.sustainResonantFrames++;
+    } else {
+      // Transition candidate
+      if (this.matchCandidate && this.matchCandidate.shruti.id === match.shruti.id) {
+        this.matchCount++;
+        if (this.matchCount >= this.hysteresisThreshold) {
+          this.currentMatch = match;
+          this.matchCandidate = null;
+          this.matchCount = 0;
+          this.sustainFrames = 1;
+          this.sustainDevSum = Math.abs(match.deviationCents);
+          this.sustainResonantFrames = match.isResonating ? 1 : 0;
+        }
+      } else {
+        this.matchCandidate = match;
+        this.matchCount = 1;
+      }
+    }
+
+    const durationSec = this.sustainFrames * 0.025; // Approx frame step in ms
+    const avgDev = this.sustainFrames > 0 ? (this.sustainDevSum / this.sustainFrames) : 0;
+    const resonancePercent = this.sustainFrames > 0 ? Math.round((this.sustainResonantFrames / this.sustainFrames) * 100) : 0;
+
+    return {
+      smoothedCents: this.smoothedCents,
+      match: this.currentMatch || match,
+      sustain: {
+        frames: this.sustainFrames,
+        durationSec,
+        avgDev,
+        resonancePercent,
+        isLongHold: durationSec >= 1.2
+      }
+    };
+  }
+}
+
+
+
+/* === File: js/tanpura.js === */
+// Synthesized Acoustic Tanpura Drone with Overtone Modeling & Shimmering Jawari
+class TanpuraDrone {
+  constructor(audioContext) {
+    this.ctx = audioContext;
+    this.isPlaying = false;
+    this.baseFreq = 277.18; // C# default
+    this.volume = 0.45;
+    this.firstStringSwara = "Pa"; // "Pa", "Ma", or "Ni"
+    
+    this.masterGain = this.ctx.createGain();
+    this.masterGain.gain.setValueAtTime(this.volume, this.ctx.currentTime);
+    this.masterGain.connect(this.ctx.destination);
+    
+    this.pluckTimer = null;
+    this.currentString = 0;
+    this.tempoMs = 1200; // milliseconds between plucks
+  }
+
+  setBaseFreq(freq) {
+    this.baseFreq = freq;
+  }
+
+  setVolume(val) {
+    this.volume = Math.max(0, Math.min(1, val));
+    if (this.masterGain) {
+      this.masterGain.gain.setValueAtTime(this.volume, this.ctx.currentTime);
+    }
+  }
+
+  setFirstString(swara) {
+    this.firstStringSwara = swara;
+  }
+
+  // Synthesize an individual plucked string with rich overtones & exponential decay
+  pluckString(freq, duration = 4.5) {
+    if (!this.isPlaying || !this.ctx) return;
+    const now = this.ctx.currentTime;
+
+    // We build 4 partials (harmonics) to simulate the acoustic buzzing bridge (Jawari)
+    const partials = [
+      { mult: 1.0,  gain: 0.70 }, // Fundamental
+      { mult: 2.0,  gain: 0.45 }, // Octave
+      { mult: 3.0,  gain: 0.30 }, // 12th
+      { mult: 4.0,  gain: 0.20 }, // 2nd Octave
+      { mult: 5.0,  gain: 0.15 }  // Major 3rd overtone
+    ];
+
+    const stringGain = this.ctx.createGain();
+    stringGain.gain.setValueAtTime(0.001, now);
+    stringGain.gain.linearRampToValueAtTime(0.35, now + 0.04); // Soft attack of fingertip
+    stringGain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+    // Warm low-pass filter
+    const filter = this.ctx.createBiquadFilter();
+    filter.type = "lowpass";
+    filter.frequency.setValueAtTime(freq * 7, now);
+    filter.frequency.exponentialRampToValueAtTime(freq * 2.5, now + duration);
+    filter.Q.value = 4.0; // Resonant body of the gourd (Tumba)
+
+    partials.forEach(p => {
+      const osc = this.ctx.createOscillator();
+      osc.type = "sawtooth";
+      // Slight chorus detune for organic shimmering
+      const detune = (Math.random() - 0.5) * 4;
+      osc.frequency.setValueAtTime(freq * p.mult + detune, now);
+
+      const pGain = this.ctx.createGain();
+      pGain.gain.value = p.gain;
+
+      osc.connect(pGain);
+      pGain.connect(filter);
+
+      osc.start(now);
+      osc.stop(now + duration + 0.1);
+    });
+
+    filter.connect(stringGain);
+    stringGain.connect(this.masterGain);
+  }
+
+  // Calculate frequency of the 4 tanpura strings
+  getStringFrequencies() {
+    let firstFreq = this.baseFreq * 1.5; // Pa = 3/2
+    if (this.firstStringSwara === "Ma") {
+      firstFreq = this.baseFreq * (4 / 3); // Ma = 4/3
+    } else if (this.firstStringSwara === "Ni") {
+      firstFreq = this.baseFreq * (15 / 8); // Ni = 15/8
+    }
+
+    return [
+      firstFreq,                  // String 1: Pa / Ma / Ni
+      this.baseFreq,              // String 2: Middle Sa
+      this.baseFreq * 1.002,      // String 3: Middle Sa (+ subtle beating/jawari)
+      this.baseFreq * 0.5         // String 4: Kharaj Sa (bass octave down)
+    ];
+  }
+
+  step() {
+    if (!this.isPlaying) return;
+    const freqs = this.getStringFrequencies();
+    this.pluckString(freqs[this.currentString]);
+
+    this.currentString = (this.currentString + 1) % 4;
+    this.pluckTimer = setTimeout(() => this.step(), this.tempoMs);
+  }
+
+  start() {
+    if (this.isPlaying) return;
+    if (this.ctx.state === "suspended") {
+      this.ctx.resume();
+    }
+    this.isPlaying = true;
+    this.currentString = 0;
+    this.step();
+  }
+
+  stop() {
+    this.isPlaying = false;
+    if (this.pluckTimer) {
+      clearTimeout(this.pluckTimer);
+      this.pluckTimer = null;
+    }
+  }
+}
+
+
+/* === File: js/canvas.js === */
+// 60 FPS Canvas Real-Time Scrolling Pitch Ribbon & Dynamic Shruti Grid
+class PitchCanvas {
+  constructor(canvasElement) {
+    this.canvas = canvasElement;
+    this.ctx = canvasElement.getContext("2d");
+    
+    // Viewport configuration
+    this.minCents = -150;  // Below Mandra Ni
+    this.maxCents = 1350;  // Above Tara Sa
+    this.timeWindowSec = 10; // Default 10 seconds history
+    this.historyLength = Math.round(this.timeWindowSec * 45); // Timeline frames
+    this.history = []; // Array of { cents, voiced, isResonating, time }
+    
+    this.activeRaga = null;
+    this.baseFreq = 277.18;
+    this.animationId = null;
+    this.currentSustain = null;
+    
+    // Resize handling
+    this.resize();
+    window.addEventListener("resize", () => this.resize());
+  }
+
+  setTimeWindow(seconds) {
+    this.timeWindowSec = Math.max(3, Math.min(30, seconds));
+    this.historyLength = Math.round(this.timeWindowSec * 45);
+    while (this.history.length > this.historyLength) {
+      this.history.shift();
+    }
+  }
+
+  setSustainInfo(sustain) {
+    this.currentSustain = sustain;
+  }
+
+  resize() {
+    const rect = this.canvas.parentElement.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    this.width = rect.width;
+    this.height = Math.max(380, rect.height || 460);
+    
+    this.canvas.width = this.width * dpr;
+    this.canvas.height = this.height * dpr;
+    this.canvas.style.width = `${this.width}px`;
+    this.canvas.style.height = `${this.height}px`;
+    
+    this.ctx.scale(dpr, dpr);
+  }
+
+  setRaga(raga) {
+    this.activeRaga = raga;
+  }
+
+  setBaseFreq(freq) {
+    this.baseFreq = freq;
+  }
+
+  // Map cents value to vertical canvas Y coordinate
+  centsToY(cents) {
+    const range = this.maxCents - this.minCents;
+    const norm = (cents - this.minCents) / range;
+    return this.height - (norm * this.height);
+  }
+
+  // Push a new audio frame into scrolling history
+  pushPitch(cents, voiced, isResonating) {
+    this.history.push({
+      cents: voiced ? cents : null,
+      voiced: voiced,
+      isResonating: isResonating || false,
+      time: performance.now()
+    });
+
+    if (this.history.length > this.historyLength) {
+      this.history.shift();
+    }
+  }
+
+  draw() {
+    this.ctx.clearRect(0, 0, this.width, this.height);
+
+    // 1. Draw Background & Vignette
+    this.ctx.fillStyle = "#0c1017";
+    this.ctx.fillRect(0, 0, this.width, this.height);
+
+    // 2. Draw Active Raga Swara Gridlines
+    if (this.activeRaga) {
+      this.drawShrutiGrid();
+    }
+
+    // 3. Draw Pitch Trajectory Ribbon
+    this.drawPitchRibbon();
+
+    // 4. Draw Right-Edge Swara Legend HUD
+    this.drawSwaraLegend();
+
+    // 5. Draw Long Note Sustain Badge if active
+    if (this.currentSustain && this.currentSustain.isLongHold) {
+      this.drawSustainHUD();
+    }
+
+    this.animationId = requestAnimationFrame(() => this.draw());
+  }
+
+  drawSustainHUD() {
+    const s = this.currentSustain;
+    this.ctx.save();
+    
+    // Glowing hold card in upper-left
+    this.ctx.fillStyle = "rgba(15, 23, 42, 0.85)";
+    this.ctx.strokeStyle = s.resonancePercent > 70 ? "rgba(16, 185, 129, 0.6)" : "rgba(56, 189, 248, 0.4)";
+    this.ctx.lineWidth = 1.2;
+    
+    const cardW = 220;
+    const cardH = 46;
+    const cardX = 20;
+    const cardY = 20;
+    
+    this.ctx.beginPath();
+    this.ctx.roundRect(cardX, cardY, cardW, cardH, 8);
+    this.ctx.fill();
+    this.ctx.stroke();
+
+    this.ctx.fillStyle = s.resonancePercent > 70 ? "#10b981" : "#38bdf8";
+    this.ctx.font = "bold 12px -apple-system, sans-serif";
+    this.ctx.fillText(`HOLD: ${s.durationSec.toFixed(1)}s`, cardX + 14, cardY + 20);
+
+    this.ctx.fillStyle = "#cbd5e1";
+    this.ctx.font = "10px monospace";
+    this.ctx.fillText(`Avg Drift: ±${s.avgDev.toFixed(1)}¢ | Lock: ${s.resonancePercent}%`, cardX + 14, cardY + 36);
+    this.ctx.restore();
+  }
+
+  drawShrutiGrid() {
+    const activeIds = this.activeRaga.activeShrutis;
+
+    // Draw both Madhya saptak (0-1200) and adjacent octave bounds
+    const octaves = [0, 1200];
+
+    for (const octaveOffset of octaves) {
+      for (const id of activeIds) {
+        const shruti = getShrutiById(id);
+        if (!shruti) continue;
+
+        const noteCents = shruti.cents + octaveOffset;
+        if (noteCents < this.minCents || noteCents > this.maxCents) continue;
+
+        const y = this.centsToY(noteCents);
+        const isSa = shruti.cents === 0;
+        const isPa = shruti.ratioStr === "3/2";
+        const isVadi = this.activeRaga.vadi && (shruti.swara === this.activeRaga.vadi || shruti.swara.startsWith(this.activeRaga.vadi));
+
+        // Line styling
+        this.ctx.beginPath();
+        this.ctx.moveTo(0, y);
+        this.ctx.lineTo(this.width - 150, y);
+
+        if (isSa) {
+          this.ctx.strokeStyle = "rgba(255, 215, 0, 0.55)"; // Glowing gold for Sa
+          this.ctx.lineWidth = 2.0;
+        } else if (isPa) {
+          this.ctx.strokeStyle = "rgba(56, 189, 248, 0.45)"; // Cyan for Pa
+          this.ctx.lineWidth = 1.6;
+        } else if (isVadi) {
+          this.ctx.strokeStyle = "rgba(244, 63, 94, 0.40)"; // Ruby for Vadi
+          this.ctx.lineWidth = 1.4;
+        } else {
+          this.ctx.strokeStyle = "rgba(148, 163, 184, 0.16)"; // Subtle guide
+          this.ctx.lineWidth = 0.9;
+        }
+        this.ctx.stroke();
+
+        // If this note has an andolan (like Darbari's ga or dha), draw the wave corridor!
+        if (this.activeRaga.andolanNotes && this.activeRaga.andolanNotes.includes(shruti.swara)) {
+          this.drawAndolanCorridor(y, noteCents);
+        }
+      }
+    }
+  }
+
+  // Visual oscillatory guide corridor for Ragas with heavy Andolan
+  drawAndolanCorridor(baseY, noteCents) {
+    const time = performance.now() * 0.002;
+    this.ctx.beginPath();
+    const ampY = (22 / (this.maxCents - this.minCents)) * this.height * 0.6;
+
+    for (let x = 0; x < this.width - 150; x += 6) {
+      const wave = Math.sin((x * 0.02) + time) * ampY;
+      if (x === 0) this.ctx.moveTo(x, baseY + wave);
+      else this.ctx.lineTo(x, baseY + wave);
+    }
+
+    this.ctx.strokeStyle = "rgba(236, 72, 153, 0.22)";
+    this.ctx.setLineDash([4, 4]);
+    this.ctx.lineWidth = 1.2;
+    this.ctx.stroke();
+    this.ctx.setLineDash([]);
+  }
+
+  drawPitchRibbon() {
+    if (this.history.length < 2) return;
+
+    const stepX = (this.width - 150) / this.historyLength;
+
+    // Draw continuous, organic vocal contour using smooth quadratic curve segments
+    this.ctx.lineWidth = 3.2;
+    this.ctx.lineCap = "round";
+    this.ctx.lineJoin = "round";
+
+    // Gather voiced segments
+    let segment = [];
+    for (let i = 0; i < this.history.length; i++) {
+      const p = this.history[i];
+      if (p.voiced && p.cents !== null) {
+        segment.push({
+          x: i * stepX,
+          y: this.centsToY(p.cents),
+          isResonating: p.isResonating
+        });
+      } else {
+        if (segment.length > 0) {
+          this.renderSegment(segment);
+          segment = [];
+        }
+      }
+    }
+    if (segment.length > 0) {
+      this.renderSegment(segment);
+    }
+
+    // Draw live singing cursor head
+    const last = this.history[this.history.length - 1];
+    if (last && last.voiced && last.cents !== null) {
+      const curX = (this.history.length - 1) * stepX;
+      const curY = this.centsToY(last.cents);
+
+      this.ctx.beginPath();
+      this.ctx.arc(curX, curY, last.isResonating ? 7.0 : 4.8, 0, Math.PI * 2);
+      this.ctx.fillStyle = last.isResonating ? "#10b981" : "#38bdf8";
+      this.ctx.shadowColor = last.isResonating ? "#34d399" : "#38bdf8";
+      this.ctx.shadowBlur = 16;
+      this.ctx.fill();
+      this.ctx.shadowBlur = 0;
+    }
+  }
+
+  // Render a continuous voiced vocal segment with smooth curves
+  renderSegment(pts) {
+    if (pts.length < 2) return;
+
+    for (let i = 0; i < pts.length - 1; i++) {
+      const p1 = pts[i];
+      const p2 = pts[i + 1];
+
+      this.ctx.beginPath();
+      this.ctx.moveTo(p1.x, p1.y);
+
+      // Smooth midpoint interpolation
+      const midX = (p1.x + p2.x) / 2;
+      const midY = (p1.y + p2.y) / 2;
+      this.ctx.quadraticCurveTo(p1.x, p1.y, midX, midY);
+      this.ctx.lineTo(p2.x, p2.y);
+
+      if (p2.isResonating) {
+        this.ctx.strokeStyle = "#10b981"; // Pure harmonic resonance lock
+        this.ctx.shadowColor = "#34d399";
+        this.ctx.shadowBlur = 12;
+      } else {
+        this.ctx.strokeStyle = "#38bdf8"; // Luminous sky blue
+        this.ctx.shadowColor = "rgba(56, 189, 248, 0.4)";
+        this.ctx.shadowBlur = 5;
+      }
+
+      this.ctx.stroke();
+      this.ctx.shadowBlur = 0;
+    }
+  }
+
+  drawSwaraLegend() {
+    const legendX = this.width - 142;
+    
+    // Draw right sidebar background
+    this.ctx.fillStyle = "rgba(15, 23, 42, 0.88)";
+    this.ctx.fillRect(legendX - 8, 0, 150, this.height);
+    this.ctx.strokeStyle = "rgba(51, 65, 85, 0.4)";
+    this.ctx.strokeRect(legendX - 8, 0, 150, this.height);
+
+    if (!this.activeRaga) return;
+
+    const activeIds = this.activeRaga.activeShrutis;
+    this.ctx.font = "11px 'Inter', system-ui, sans-serif";
+    this.ctx.textBaseline = "middle";
+
+    for (const id of activeIds) {
+      const shruti = getShrutiById(id);
+      if (!shruti) continue;
+
+      const y = this.centsToY(shruti.cents);
+      if (y < 12 || y > this.height - 12) continue;
+
+      const isSa = shruti.cents === 0;
+      const isPa = shruti.ratioStr === "3/2";
+
+      // Color code labels
+      if (isSa) {
+        this.ctx.fillStyle = "#fbbf24"; // Gold
+      } else if (isPa) {
+        this.ctx.fillStyle = "#38bdf8"; // Cyan
+      } else {
+        this.ctx.fillStyle = "#cbd5e1"; // Slate
+      }
+
+      // Format: "re₂ (16/15) +112¢"
+      const text = `${shruti.swara} [${shruti.ratioStr}]`;
+      const centsText = `+${Math.round(shruti.cents)}¢`;
+
+      this.ctx.fillText(text, legendX, y - 4);
+      this.ctx.font = "9px 'Inter', monospace";
+      this.ctx.fillStyle = "rgba(148, 163, 184, 0.75)";
+      this.ctx.fillText(centsText, legendX + 80, y - 4);
+      this.ctx.font = "11px 'Inter', system-ui, sans-serif";
+    }
+  }
+
+  start() {
+    if (!this.animationId) {
+      this.draw();
+    }
+  }
+
+  stop() {
+    if (this.animationId) {
+      cancelAnimationFrame(this.animationId);
+      this.animationId = null;
+    }
+  }
+}
+
+
+/* === File: js/app.js === */
+// Main Application Controller: Microphone Streaming, Live HUD, and User Controls
+let audioCtx = null;
+let micStream = null;
+let sourceNode = null;
+let analyserNode = null;
+let pitchDetector = null;
+let pitchCanvas = null;
+let tanpura = null;
+
+let isListening = false;
+let currentRaga = null;
+let baseFreq = 277.18; // Default C# (277.18 Hz)
+let isCalibrating = false;
+let calibrationBuffer = [];
+let vocalSmoother = new VocalSmoother(6, 0.75); // Adaptive vocal stabilizer
+
+// Standard base tonic frequencies (Middle Octave / Madhya Saptak)
+const TONIC_FREQUENCIES = {
+  "A": 220.00,
+  "A#": 233.08,
+  "B": 246.94,
+  "C": 261.63,
+  "C#": 277.18,
+  "D": 293.66,
+  "D#": 311.13,
+  "E": 329.63,
+  "F": 349.23,
+  "F#": 369.99,
+  "G": 392.00,
+  "G#": 415.30
+};
+
+window.addEventListener("DOMContentLoaded", () => {
+  initUI();
+});
+
+function initUI() {
+  const canvasElement = document.getElementById("pitchCanvas");
+  pitchCanvas = new PitchCanvas(canvasElement);
+
+  // Initialize Raga selector
+  const ragaSelect = document.getElementById("ragaSelect");
+  RAGAS.forEach(raga => {
+    const opt = document.createElement("option");
+    opt.value = raga.id;
+    opt.textContent = `${raga.name} (${raga.thaat})`;
+    ragaSelect.appendChild(opt);
+  });
+
+  currentRaga = RAGAS[0];
+  pitchCanvas.setRaga(currentRaga);
+  updateRagaInfo(currentRaga);
+
+  ragaSelect.addEventListener("change", (e) => {
+    currentRaga = getRagaById(e.target.value);
+    pitchCanvas.setRaga(currentRaga);
+    updateRagaInfo(currentRaga);
+    if (tanpura) {
+      // If raga omits Pa (like Marwa), switch tanpura 1st string to Ni or Ma
+      if (currentRaga.id === "marwa") {
+        tanpura.setFirstString("Ni");
+      } else if (currentRaga.id === "malkauns") {
+        tanpura.setFirstString("Ma");
+      } else {
+        tanpura.setFirstString("Pa");
+      }
+    }
+  });
+
+  // Tonic selector
+  const tonicSelect = document.getElementById("tonicSelect");
+  tonicSelect.value = "C#";
+  tonicSelect.addEventListener("change", (e) => {
+    baseFreq = TONIC_FREQUENCIES[e.target.value] || 277.18;
+    updateBaseFreq(baseFreq);
+  });
+
+  // Microphone toggle button
+  const micBtn = document.getElementById("micBtn");
+  micBtn.addEventListener("click", toggleMicrophone);
+
+  // Calibrate Sa button
+  const calibrateBtn = document.getElementById("calibrateBtn");
+  calibrateBtn.addEventListener("click", startCalibration);
+
+  // Tanpura toggle
+  const tanpuraBtn = document.getElementById("tanpuraBtn");
+  const tanpuraVol = document.getElementById("tanpuraVol");
+  tanpuraBtn.addEventListener("click", () => {
+    if (!audioCtx) initAudio();
+    if (!tanpura) tanpura = new TanpuraDrone(audioCtx);
+    tanpura.setBaseFreq(baseFreq);
+
+    if (tanpura.isPlaying) {
+      tanpura.stop();
+      tanpuraBtn.textContent = "Start Tanpura";
+      tanpuraBtn.classList.remove("active");
+    } else {
+      tanpura.start();
+      tanpuraBtn.textContent = "Stop Tanpura";
+      tanpuraBtn.classList.add("active");
+    }
+  });
+
+  tanpuraVol.addEventListener("input", (e) => {
+    if (tanpura) tanpura.setVolume(parseFloat(e.target.value));
+  });
+
+  // Sensitivity / Noise Gate slider
+  const noiseGateSlider = document.getElementById("noiseGateSlider");
+  noiseGateSlider.addEventListener("input", (e) => {
+    if (pitchDetector) {
+      pitchDetector.minRMS = parseFloat(e.target.value);
+    }
+  });
+
+  // Vocal Smoothing slider
+  const vocalSmoothingSlider = document.getElementById("vocalSmoothingSlider");
+  if (vocalSmoothingSlider) {
+    vocalSmoothingSlider.addEventListener("input", (e) => {
+      vocalSmoother.setSmoothing(parseFloat(e.target.value));
+    });
+  }
+
+  // Adjustment Speed slider (speed of adaptation / response time)
+  const adjustmentSpeedSlider = document.getElementById("adjustmentSpeedSlider");
+  if (adjustmentSpeedSlider) {
+    adjustmentSpeedSlider.addEventListener("input", (e) => {
+      vocalSmoother.setAdjustmentSpeed(parseFloat(e.target.value));
+    });
+  }
+
+  // Time Window / Scroll Speed slider (holding notes over time)
+  const timeWindowSlider = document.getElementById("timeWindowSlider");
+  const timeWindowVal = document.getElementById("timeWindowVal");
+  if (timeWindowSlider) {
+    timeWindowSlider.addEventListener("input", (e) => {
+      const sec = parseFloat(e.target.value);
+      pitchCanvas.setTimeWindow(sec);
+      if (timeWindowVal) timeWindowVal.textContent = `${sec}s`;
+    });
+  }
+
+  pitchCanvas.start();
+}
+
+function updateBaseFreq(freq) {
+  baseFreq = freq;
+  document.getElementById("saFreqDisplay").textContent = `${freq.toFixed(2)} Hz`;
+  if (pitchCanvas) pitchCanvas.setBaseFreq(freq);
+  if (tanpura) tanpura.setBaseFreq(freq);
+}
+
+function updateRagaInfo(raga) {
+  document.getElementById("ragaDesc").textContent = raga.description;
+  document.getElementById("ragaPrahar").textContent = raga.prahar;
+  document.getElementById("ragaVadi").textContent = `Vadi: ${raga.vadi || "—"} | Samvadi: ${raga.samvadi || "—"}`;
+}
+
+async function initAudio() {
+  if (!audioCtx) {
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    audioCtx = new AudioContextClass();
+    pitchDetector = new PitchDetector(audioCtx.sampleRate, 2048);
+  }
+  if (audioCtx.state === "suspended") {
+    await audioCtx.resume();
+  }
+}
+
+async function toggleMicrophone() {
+  const micBtn = document.getElementById("micBtn");
+  const statusIndicator = document.getElementById("statusIndicator");
+
+  if (isListening) {
+    // Stop listening
+    if (micStream) {
+      micStream.getTracks().forEach(track => track.stop());
+      micStream = null;
+    }
+    isListening = false;
+    micBtn.textContent = "Turn ON Microphone";
+    micBtn.classList.remove("active");
+    statusIndicator.textContent = "Mic Inactive";
+    statusIndicator.className = "status-badge inactive";
+    clearLiveHUD();
+    return;
+  }
+
+  // Start listening
+  try {
+    await initAudio();
+
+    // Critical: Disable browser speech preprocessing filters that mangle sustained vocal singing!
+    micStream = await navigator.mediaDevices.getUserMedia({
+      audio: {
+        echoCancellation: false,
+        noiseSuppression: false,
+        autoGainControl: false
+      }
+    });
+
+    sourceNode = audioCtx.createMediaStreamSource(micStream);
+    analyserNode = audioCtx.createAnalyser();
+    analyserNode.fftSize = 2048;
+
+    sourceNode.connect(analyserNode);
+
+    isListening = true;
+    micBtn.textContent = "Turn OFF Microphone";
+    micBtn.classList.add("active");
+    statusIndicator.textContent = "Live Listening";
+    statusIndicator.className = "status-badge active";
+
+    processAudio();
+  } catch (err) {
+    console.error("Microphone access error:", err);
+    alert(`Could not access microphone: ${err.message}. Please check browser permissions.`);
+  }
+}
+
+function processAudio() {
+  if (!isListening || !analyserNode) return;
+
+  const buffer = new Float32Array(analyserNode.fftSize);
+  analyserNode.getFloatTimeDomainData(buffer);
+
+  const result = pitchDetector.detect(buffer);
+
+  if (result.voiced && result.freq) {
+    const rawCents = PitchDetector.hzToCents(result.freq, baseFreq);
+    const smoothedData = vocalSmoother.process(rawCents, currentRaga.activeShrutis);
+
+    if (smoothedData && smoothedData.match) {
+      const stableCents = smoothedData.smoothedCents;
+      const match = smoothedData.match;
+      // Derive stable frequency from smoothed cents for calm HUD display
+      const stableFreq = baseFreq * Math.pow(2, stableCents / 1200);
+
+      pitchCanvas.pushPitch(stableCents, true, match.isResonating);
+      pitchCanvas.setSustainInfo(smoothedData.sustain);
+      updateLiveHUD(stableFreq, stableCents, match, smoothedData.sustain);
+    } else {
+      pitchCanvas.pushPitch(rawCents, true, false);
+      pitchCanvas.setSustainInfo(null);
+      updateLiveHUDPartial(result.freq, rawCents);
+    }
+
+    if (isCalibrating) {
+      calibrationBuffer.push(result.freq);
+    }
+  } else {
+    vocalSmoother.reset();
+    pitchCanvas.pushPitch(0, false, false);
+    pitchCanvas.setSustainInfo(null);
+    clearLiveHUD();
+  }
+
+  requestAnimationFrame(processAudio);
+}
+
+// Update the large, prominent Live Display HUD
+function updateLiveHUD(freq, rawCents, match, sustain) {
+  const shruti = match.shruti;
+  const dev = match.deviationCents;
+
+  const swaraNameEl = document.getElementById("hudSwaraName");
+  const shrutiNameEl = document.getElementById("hudShrutiName");
+  const ratioEl = document.getElementById("hudRatio");
+  const freqEl = document.getElementById("hudFreq");
+  const deviationEl = document.getElementById("hudDeviation");
+  const meterFill = document.getElementById("hudMeterFill");
+  const lockBeacon = document.getElementById("hudLockBeacon");
+
+  // Display Swara & Traditional Sanskrit Shruti name
+  swaraNameEl.textContent = shruti.swara;
+  
+  if (sustain && sustain.isLongHold) {
+    shrutiNameEl.textContent = `${shruti.name} • Held: ${sustain.durationSec.toFixed(1)}s (Lock: ${sustain.resonancePercent}%)`;
+  } else {
+    shrutiNameEl.textContent = `${shruti.name} (${shruti.desc || shruti.type})`;
+  }
+  ratioEl.textContent = `Ratio: ${shruti.ratioStr} [Target: +${Math.round(shruti.cents)}¢]`;
+  freqEl.textContent = `${freq.toFixed(1)} Hz`;
+
+  // Deviation formatting (+2.1¢ or -1.4¢)
+  const sign = dev >= 0 ? "+" : "";
+  deviationEl.textContent = `${sign}${dev.toFixed(1)} cents`;
+
+  // Deviation Meter Fill (-50 to +50 cents range)
+  const clampedDev = Math.max(-50, Math.min(50, dev));
+  const percent = 50 + (clampedDev / 50) * 50;
+  meterFill.style.left = `${Math.min(50, percent)}%`;
+  meterFill.style.width = `${Math.abs(percent - 50)}%`;
+
+  if (match.isResonating) {
+    // Pure harmonic lock!
+    deviationEl.className = "hud-deviation lock";
+    meterFill.className = "meter-fill lock";
+    lockBeacon.classList.add("visible");
+  } else if (Math.abs(dev) < 15) {
+    deviationEl.className = "hud-deviation close";
+    meterFill.className = "meter-fill close";
+    lockBeacon.classList.remove("visible");
+  } else {
+    deviationEl.className = "hud-deviation off";
+    meterFill.className = "meter-fill off";
+    lockBeacon.classList.remove("visible");
+  }
+}
+
+function updateLiveHUDPartial(freq, rawCents) {
+  document.getElementById("hudFreq").textContent = `${freq.toFixed(1)} Hz`;
+  document.getElementById("hudDeviation").textContent = "Off-scale";
+}
+
+function clearLiveHUD() {
+  document.getElementById("hudSwaraName").textContent = "—";
+  document.getElementById("hudShrutiName").textContent = "Waiting for singing voice...";
+  document.getElementById("hudRatio").textContent = "—";
+  document.getElementById("hudFreq").textContent = "— Hz";
+  document.getElementById("hudDeviation").textContent = "—";
+  document.getElementById("hudDeviation").className = "hud-deviation";
+  document.getElementById("hudMeterFill").style.width = "0%";
+  document.getElementById("hudLockBeacon").classList.remove("visible");
+}
+
+// "Calibrate Sa": User sings their comfortable Sa for 1.5 seconds, app locks their tonic!
+function startCalibration() {
+  if (!isListening) {
+    alert("Please turn ON the microphone first before calibrating Sa.");
+    return;
+  }
+
+  isCalibrating = true;
+  calibrationBuffer = [];
+  const calibrateBtn = document.getElementById("calibrateBtn");
+  calibrateBtn.textContent = "Sing Sa steadily...";
+  calibrateBtn.classList.add("recording");
+
+  setTimeout(() => {
+    isCalibrating = false;
+    calibrateBtn.classList.remove("recording");
+    calibrateBtn.textContent = "Calibrate Sa";
+
+    if (calibrationBuffer.length > 8) {
+      // Sort and take median to reject vocal onset spikes
+      calibrationBuffer.sort((a, b) => a - b);
+      const medianFreq = calibrationBuffer[Math.floor(calibrationBuffer.length / 2)];
+      updateBaseFreq(medianFreq);
+      alert(`Sa calibrated successfully to ${medianFreq.toFixed(2)} Hz!`);
+    } else {
+      alert("Could not detect a steady voice tone. Please hold your Sa clearly and try again.");
+    }
+  }, 1600);
+}
+
+
+</script>
+</body>
+</html>

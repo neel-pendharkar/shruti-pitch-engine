@@ -1,0 +1,117 @@
+// Curated Ragas mapped to their exact 22-Shruti microtonal nodes
+const RAGAS = [
+  {
+    id: "bhoop",
+    name: "Raga Bhoop (Bhoopali)",
+    thaat: "Kalyan",
+    prahar: "First Part of Night (7 PM - 10 PM)",
+    vadi: "Ga₁",
+    samvadi: "Dha₁",
+    description: "Audava (pentatonic) raga of pure tranquility: Sa, Re₂, Ga₁, Pa, Dha₁. Perfect for vocal steady sustains.",
+    activeShrutis: [1, 5, 8, 14, 17], // Sa, Re₂(9/8), Ga₁(5/4), Pa(3/2), Dha₁(5/3)
+    andolanNotes: []
+  },
+  {
+    id: "bhimpalasi",
+    name: "Raga Bhimpalasi",
+    thaat: "Kafi",
+    prahar: "Late Afternoon (3 PM - 6 PM)",
+    vadi: "ma₁",
+    samvadi: "Sa",
+    description: "Poignant, tender afternoon raga. Centers around Vadi Madhyam (ma₁, 4/3). Its Komal Ni is the grave 16/9 (996¢), forming a pure 4th consonance directly with Madhyam.",
+    activeShrutis: [1, 4, 7, 10, 14, 17, 19], // Sa, Re₁(10/9), ga₂(6/5), ma₁(4/3), Pa(3/2), Dha₁(5/3), ni₁(16/9)
+    andolanNotes: []
+  },
+  {
+    id: "vrindavani_sarang",
+    name: "Raga Vrindavani Sarang",
+    thaat: "Kafi",
+    prahar: "Midday / Early Afternoon (12 PM - 3 PM)",
+    vadi: "Re₂",
+    samvadi: "Pa",
+    description: "Luminous, refreshing midday raga. Completely omits Ga and Dha, featuring both Nishads: Shuddha Ni (15/8) in ascent and Komal Ni (9/5) in descent.",
+    activeShrutis: [1, 5, 10, 14, 20, 21], // Sa, Re₂(9/8), ma₁(4/3), Pa(3/2), ni₂(9/5), Ni₁(15/8)
+    andolanNotes: []
+  },
+  {
+    id: "bhairav",
+    name: "Raga Bhairav",
+    thaat: "Bhairav",
+    prahar: "Early Dawn (6 AM - 9 AM)",
+    vadi: "dha₂",
+    samvadi: "re₂",
+    description: "Majestic, sacred dawn raga. Features the bold Diatonic Komal Re (16/15) and Komal Dha (8/5).",
+    activeShrutis: [1, 3, 8, 10, 14, 16, 21], // Sa, re₂(16/15), Ga₁(5/4), ma₁(4/3), Pa(3/2), dha₂(8/5), Ni₁(15/8)
+    andolanNotes: ["re₂", "dha₂"]
+  },
+  {
+    id: "todi",
+    name: "Miyan Ki Todi",
+    thaat: "Todi",
+    prahar: "Late Morning (9 AM - 12 PM)",
+    vadi: "dha₁",
+    samvadi: "ga₁",
+    description: "Deep, intense pathos. Features the ultra-flat Pythagorean Ati-Komal Re (256/243), Ati-Komal Ga (32/27), and Sharp Tivra Ma (729/512).",
+    activeShrutis: [1, 2, 6, 13, 14, 15, 21], // Sa, re₁(256/243), ga₁(32/27), Ma'₂(729/512), Pa(3/2), dha₁(128/81), Ni₁(15/8)
+    andolanNotes: ["ga₁", "dha₁"]
+  },
+  {
+    id: "yaman",
+    name: "Raga Yaman (Kalyan)",
+    thaat: "Kalyan",
+    prahar: "First Part of Night (7 PM - 10 PM)",
+    vadi: "Ga₁",
+    samvadi: "Ni₁",
+    description: "Serene, luminous evening raga. Features pure major intervals and the natural harmonic tritone Tivra Ma (45/32).",
+    activeShrutis: [1, 5, 8, 12, 14, 17, 21], // Sa, Re₂(9/8), Ga₁(5/4), Ma'₁(45/32), Pa(3/2), Dha₁(5/3), Ni₁(15/8)
+    andolanNotes: []
+  },
+  {
+    id: "darbari",
+    name: "Darbari Kanada",
+    thaat: "Asavari",
+    prahar: "Late Night (Midnight - 3 AM)",
+    vadi: "Re₂",
+    samvadi: "Pa",
+    description: "Grand, royal, melancholic. Renowned for slow, heavy microtonal oscillations (andolan) on ga₁ and dha₁.",
+    activeShrutis: [1, 5, 6, 10, 14, 15, 19], // Sa, Re₂(9/8), ga₁(32/27), ma₁(4/3), Pa(3/2), dha₁(128/81), ni₁(16/9)
+    andolanNotes: ["ga₁", "dha₁"]
+  },
+  {
+    id: "bhairavi",
+    name: "Raga Bhairavi",
+    thaat: "Bhairavi",
+    prahar: "Morning (or concluding all recitals)",
+    vadi: "ma₁",
+    samvadi: "Sa",
+    description: "All four komal notes (re, ga, dha, ni). In classical performance, it uses the pure 5-limit minor intervals.",
+    activeShrutis: [1, 3, 7, 10, 14, 16, 20], // Sa, re₂(16/15), ga₂(6/5), ma₁(4/3), Pa(3/2), dha₂(8/5), ni₂(9/5)
+    andolanNotes: []
+  },
+  {
+    id: "marwa",
+    name: "Raga Marwa",
+    thaat: "Marwa",
+    prahar: "Sunset / Sandhiprakash (5 PM - 7 PM)",
+    vadi: "Dha₁",
+    samvadi: "re₁",
+    description: "Restless, haunting twilight atmosphere. Hexatonic raga completely omitting Pancham (Pa), anchored by Ati-Komal Re and high Dha.",
+    activeShrutis: [1, 2, 8, 13, 17, 21], // Sa, re₁(256/243), Ga₁(5/4), Ma'₂(729/512), Dha₁(5/3), Ni₁(15/8)
+    andolanNotes: []
+  },
+  {
+    id: "all_22",
+    name: "All 22 Shrutis (Full Acoustic Lattice)",
+    thaat: "Universal",
+    prahar: "Anytime",
+    vadi: "Sa",
+    samvadi: "Pa",
+    description: "Displays every one of the 22 microtonal positions simultaneously across the canvas for free acoustic experimentation.",
+    activeShrutis: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22],
+    andolanNotes: []
+  }
+];
+
+function getRagaById(id) {
+  return RAGAS.find(r => r.id === id) || RAGAS[0];
+}

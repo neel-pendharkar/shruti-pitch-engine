@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>22-Shruti Pitch Engine — Indian Classical Pitch Recognizer</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Top Header -->
+  <header>
+    <div class="logo-group">
+      <div class="logo-icon">श्रु</div>
+      <div>
+        <h1>22-Shruti Real-Time Pitch Engine</h1>
+        <div class="subtitle">Microtonal Just Intonation for Indian Classical Music</div>
+      </div>
+    </div>
+    <div>
+      <span id="statusIndicator" class="status-badge inactive">Mic Inactive</span>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main>
+
+    <!-- Top Controls Bar -->
+    <section class="controls-bar">
+      <!-- Mic Button -->
+      <button id="micBtn" class="btn btn-primary">
+        🎤 Turn ON Microphone
+      </button>
+
+      <!-- Calibrate Sa -->
+      <button id="calibrateBtn" class="btn btn-secondary" title="Sing your Sa steadily for 1.5 seconds to lock your personal tonic">
+        🎯 Calibrate Sa
+      </button>
+
+      <!-- Tonic / Sa Selection -->
+      <div class="control-item">
+        <label class="control-label" for="tonicSelect">Tonic (Sa)</label>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <select id="tonicSelect">
+            <option value="A">A (220.0 Hz)</option>
+            <option value="A#">A# / Bb (233.1 Hz)</option>
+            <option value="B">B (246.9 Hz)</option>
+            <option value="C">C (261.6 Hz)</option>
+            <option value="C#" selected>C# (277.2 Hz)</option>
+            <option value="D">D (293.7 Hz)</option>
+            <option value="D#">D# / Eb (311.1 Hz)</option>
+            <option value="E">E (329.6 Hz)</option>
+            <option value="F">F (349.2 Hz)</option>
+            <option value="F#">F# (370.0 Hz)</option>
+            <option value="G">G (392.0 Hz)</option>
+            <option value="G#">G# / Ab (415.3 Hz)</option>
+          </select>
+          <span id="saFreqDisplay" class="freq-pill">277.18 Hz</span>
+        </div>
+      </div>
+
+      <!-- Raga Selection -->
+      <div class="control-item">
+        <label class="control-label" for="ragaSelect">Active Raga</label>
+        <select id="ragaSelect"></select>
+      </div>
+
+      <!-- Tanpura Drone -->
+      <div class="control-item">
+        <label class="control-label">Acoustic Tanpura</label>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <button id="tanpuraBtn" class="btn btn-secondary">Start Tanpura</button>
+          <input type="range" id="tanpuraVol" min="0" max="1" step="0.05" value="0.45" style="width: 70px;" title="Tanpura Volume">
+        </div>
+      </div>
+
+      <!-- Noise Gate -->
+      <div class="control-item">
+        <label class="control-label" for="noiseGateSlider">Noise Gate</label>
+        <input type="range" id="noiseGateSlider" min="0.002" max="0.04" step="0.002" value="0.008" style="width: 80px;" title="Adjust microphone sensitivity threshold">
+      </div>
+
+      <!-- Vocal Smoothing -->
+      <div class="control-item">
+        <label class="control-label" for="vocalSmoothingSlider">Vocal Smoothing</label>
+        <input type="range" id="vocalSmoothingSlider" min="0" max="0.95" step="0.05" value="0.75" style="width: 80px;" title="Adjust jitter smoothing (0 = raw instantaneous, 0.95 = ultra-stable)">
+      </div>
+
+      <!-- Adjustment Speed -->
+      <div class="control-item">
+        <label class="control-label" for="adjustmentSpeedSlider">Adjustment Speed</label>
+        <input type="range" id="adjustmentSpeedSlider" min="0.05" max="1.0" step="0.05" value="0.50" style="width: 80px;" title="Reaction speed (Slow = steady average for holding notes, Fast = instant tracking)">
+      </div>
+
+      <!-- Time Span / Scroll Speed -->
+      <div class="control-item">
+        <label class="control-label" for="timeWindowSlider">Time Span (<span id="timeWindowVal" style="color: var(--accent-gold);">10s</span>)</label>
+        <input type="range" id="timeWindowSlider" min="3" max="25" step="1" value="10" style="width: 80px;" title="Seconds visible on screen for observing note holds over time">
+      </div>
+    </section>
+
+    <!-- LIVE DISPLAY HUD (Prominent Real-Time Readout) -->
+    <section class="hud-container">
+      <!-- Left: Detected Swara & Shruti Name -->
+      <div class="hud-swara-box">
+        <div id="hudSwaraName" class="hud-swara-main">—</div>
+        <div id="hudShrutiName" class="hud-shruti-sub">Turn ON mic to start singing...</div>
+        <div id="hudRatio" class="hud-ratio-tag">—</div>
+      </div>
+
+      <!-- Center: Large Cent Deviation & Bi-directional Meter -->
+      <div class="hud-meter-box">
+        <div id="hudDeviation" class="hud-deviation">—</div>
+        
+        <!-- -50¢ to +50¢ Visual Meter -->
+        <div class="meter-track">
+          <div class="meter-center-tick"></div>
+          <div id="hudMeterFill" class="meter-fill" style="width: 0%;"></div>
+        </div>
+
+        <div class="meter-labels">
+          <span>-50¢ (Flat)</span>
+          <span>-25¢</span>
+          <span style="color: var(--accent-emerald); font-weight: bold;">0¢ (Pure Ratio)</span>
+          <span>+25¢</span>
+          <span>+50¢ (Sharp)</span>
+        </div>
+      </div>
+
+      <!-- Right: Frequency & Resonance Lock Beacon -->
+      <div class="hud-telemetry-box">
+        <div id="hudFreq" class="hud-freq">— Hz</div>
+        <div id="hudLockBeacon" class="lock-beacon">
+          <span class="beacon-dot"></span>
+          <span>RESONANCE LOCK</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 60 FPS Scrolling Pitch Canvas -->
+    <section class="canvas-wrapper">
+      <canvas id="pitchCanvas"></canvas>
+    </section>
+
+    <!-- Bottom Raga Info Strip -->
+    <footer class="raga-info-strip">
+      <div>
+        <strong>Prahar:</strong> <span id="ragaPrahar">—</span> | 
+        <span id="ragaVadi">—</span>
+      </div>
+      <div>
+        <span id="ragaDesc">—</span>
+      </div>
+    </footer>
+
+  </main>
+
+  <!-- Application Scripts -->
+  <script src="data/shrutis.js"></script>
+  <script src="data/ragas.js"></script>
+  <script src="js/dsp.js"></script>
+  <script src="js/tanpura.js"></script>
+  <script src="js/canvas.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
