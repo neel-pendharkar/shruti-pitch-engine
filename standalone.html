@@ -1841,9 +1841,9 @@ class PitchCanvas {
     this.canvas = canvasElement;
     this.ctx = canvasElement.getContext("2d");
     
-    // Viewport configuration: covers lower notes (Mandra Saptak down to Pa) through Taar Sa
-    this.minCents = -650;  // Below Mandra Pa
-    this.maxCents = 1350;  // Above Tara Sa
+    // Viewport configuration: framed from Lower Pa (Mandra Pa, -498¢) to Upper Pa (Madhya Pa, +702¢)
+    this.minCents = -550;  // Just below Lower Pa (-498¢)
+    this.maxCents = 800;   // Just above Upper Pa (+702¢)
     this.timeWindowSec = 10; // Default 10 seconds history
     this.historyLength = Math.round(this.timeWindowSec * 45); // Timeline frames
     this.history = []; // Array of { cents, voiced, isResonating, time }
