@@ -4,8 +4,8 @@ class PitchCanvas {
     this.canvas = canvasElement;
     this.ctx = canvasElement.getContext("2d");
     
-    // Viewport configuration
-    this.minCents = -150;  // Below Mandra Ni
+    // Viewport configuration: covers lower notes (Mandra Saptak down to Pa) through Taar Sa
+    this.minCents = -650;  // Below Mandra Pa
     this.maxCents = 1350;  // Above Tara Sa
     this.timeWindowSec = 10; // Default 10 seconds history
     this.historyLength = Math.round(this.timeWindowSec * 45); // Timeline frames
@@ -37,7 +37,7 @@ class PitchCanvas {
     const rect = this.canvas.parentElement.getBoundingClientRect();
     const dpr = window.devicePixelRatio || 1;
     this.width = rect.width;
-    this.height = Math.max(380, rect.height || 460);
+    this.height = Math.max(480, rect.height || 540);
     
     this.canvas.width = this.width * dpr;
     this.canvas.height = this.height * dpr;
@@ -134,8 +134,8 @@ class PitchCanvas {
   drawShrutiGrid() {
     const activeIds = this.activeRaga.activeShrutis;
 
-    // Draw both Madhya saptak (0-1200) and adjacent octave bounds
-    const octaves = [0, 1200];
+    // Draw Mandra (-1200), Madhya (0), and Taar (1200) octaves
+    const octaves = [-1200, 0, 1200];
 
     for (const octaveOffset of octaves) {
       for (const id of activeIds) {
@@ -291,34 +291,43 @@ class PitchCanvas {
     this.ctx.font = "11px 'Inter', system-ui, sans-serif";
     this.ctx.textBaseline = "middle";
 
-    for (const id of activeIds) {
-      const shruti = getShrutiById(id);
-      if (!shruti) continue;
+    const octaves = [-1200, 0, 1200];
+    for (const octaveOffset of octaves) {
+      for (const id of activeIds) {
+        const shruti = getShrutiById(id);
+        if (!shruti) continue;
 
-      const y = this.centsToY(shruti.cents);
-      if (y < 12 || y > this.height - 12) continue;
+        const noteCents = shruti.cents + octaveOffset;
+        const y = this.centsToY(noteCents);
+        if (y < 12 || y > this.height - 12) continue;
 
-      const isSa = shruti.cents === 0;
-      const isPa = shruti.ratioStr === "3/2";
+        const isSa = shruti.cents === 0;
+        const isPa = shruti.ratioStr === "3/2";
 
-      // Color code labels
-      if (isSa) {
-        this.ctx.fillStyle = "#fbbf24"; // Gold
-      } else if (isPa) {
-        this.ctx.fillStyle = "#38bdf8"; // Cyan
-      } else {
-        this.ctx.fillStyle = "#cbd5e1"; // Slate
+        // Color code labels
+        if (isSa) {
+          this.ctx.fillStyle = "#fbbf24"; // Gold
+        } else if (isPa) {
+          this.ctx.fillStyle = "#38bdf8"; // Cyan
+        } else {
+          this.ctx.fillStyle = "#cbd5e1"; // Slate
+        }
+
+        // Swara notation: dot below for Mandra, apostrophe for Taar
+        let swaraName = shruti.swara;
+        if (octaveOffset === -1200) swaraName = `.${shruti.swara}`;
+        else if (octaveOffset === 1200) swaraName = `${shruti.swara}'`;
+
+        const text = `${swaraName} [${shruti.ratioStr}]`;
+        const sign = noteCents >= 0 ? "+" : "";
+        const centsText = `${sign}${Math.round(noteCents)}¢`;
+
+        this.ctx.fillText(text, legendX, y - 4);
+        this.ctx.font = "9px 'Inter', monospace";
+        this.ctx.fillStyle = "rgba(148, 163, 184, 0.75)";
+        this.ctx.fillText(centsText, legendX + 80, y - 4);
+        this.ctx.font = "11px 'Inter', system-ui, sans-serif";
       }
-
-      // Format: "re₂ (16/15) +112¢"
-      const text = `${shruti.swara} [${shruti.ratioStr}]`;
-      const centsText = `+${Math.round(shruti.cents)}¢`;
-
-      this.ctx.fillText(text, legendX, y - 4);
-      this.ctx.font = "9px 'Inter', monospace";
-      this.ctx.fillStyle = "rgba(148, 163, 184, 0.75)";
-      this.ctx.fillText(centsText, legendX + 80, y - 4);
-      this.ctx.font = "11px 'Inter', system-ui, sans-serif";
     }
   }
 
