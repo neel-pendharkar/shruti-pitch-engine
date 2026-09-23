@@ -7,7 +7,7 @@ let html = fs.readFileSync(path.join(projectDir, 'index.html'), 'utf8');
 
 // Inline CSS
 const css = fs.readFileSync(path.join(projectDir, 'css', 'style.css'), 'utf8');
-html = html.replace('<link rel="stylesheet" href="css/style.css">', `<style>\n${css}\n</style>`);
+html = html.replace(/<link rel="stylesheet" href="[^"]+">/, `<style>\n${css}\n</style>`);
 
 // Order of JS files to inline
 const jsFiles = [

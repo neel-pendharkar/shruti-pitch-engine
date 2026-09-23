@@ -4,9 +4,9 @@ class PitchCanvas {
     this.canvas = canvasElement;
     this.ctx = canvasElement.getContext("2d");
     
-    // Viewport configuration: 2 full octaves with Middle Sa (0¢) as Upper Sa
-    this.minCents = -2450; // Below Ati-Mandra Sa (-2400¢) & Lower Pa (-1698¢)
-    this.maxCents = 200;   // Framing Middle Sa (0¢) as Upper Sa
+    // Viewport configuration: 2 full octaves from Lower Pa (-1698¢) to Highest note Pa (+702¢)
+    this.minCents = -1750; // Just below Lower Pa (-1698¢)
+    this.maxCents = 780;   // Framing Upper Pa (+702¢) as highest note
     this.timeWindowSec = 10; // Default 10 seconds history
     this.historyLength = Math.round(this.timeWindowSec * 45); // Timeline frames
     this.history = []; // Array of { cents, voiced, isResonating, time }
@@ -169,32 +169,8 @@ class PitchCanvas {
           this.ctx.lineWidth = 0.9;
         }
         this.ctx.stroke();
-
-        // If this note has an andolan (like Darbari's ga or dha), draw the wave corridor!
-        if (this.activeRaga.andolanNotes && this.activeRaga.andolanNotes.includes(shruti.swara)) {
-          this.drawAndolanCorridor(y, noteCents);
-        }
       }
     }
-  }
-
-  // Visual oscillatory guide corridor for Ragas with heavy Andolan
-  drawAndolanCorridor(baseY, noteCents) {
-    const time = performance.now() * 0.002;
-    this.ctx.beginPath();
-    const ampY = (22 / (this.maxCents - this.minCents)) * this.height * 0.6;
-
-    for (let x = 0; x < this.width - 150; x += 6) {
-      const wave = Math.sin((x * 0.02) + time) * ampY;
-      if (x === 0) this.ctx.moveTo(x, baseY + wave);
-      else this.ctx.lineTo(x, baseY + wave);
-    }
-
-    this.ctx.strokeStyle = "rgba(236, 72, 153, 0.22)";
-    this.ctx.setLineDash([4, 4]);
-    this.ctx.lineWidth = 1.2;
-    this.ctx.stroke();
-    this.ctx.setLineDash([]);
   }
 
   drawPitchRibbon() {
