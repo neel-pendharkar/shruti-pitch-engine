@@ -99,41 +99,44 @@
       </div>
     </section>
 
-    <!-- LIVE DISPLAY HUD (Prominent Real-Time Readout) -->
-    <section class="hud-container">
+    <!-- LIVE DISPLAY HUD (Slick, Calm Studio Instrument) -->
+    <section id="hudContainer" class="hud-container idle">
       <!-- Left: Detected Swara & Shruti Name -->
       <div class="hud-swara-box">
         <div id="hudSwaraName" class="hud-swara-main">—</div>
-        <div id="hudShrutiName" class="hud-shruti-sub">Turn ON mic to start singing...</div>
-        <div id="hudRatio" class="hud-ratio-tag">—</div>
+        <div class="hud-sub-group">
+          <div id="hudShrutiName" class="hud-shruti-sub">Listening for voice...</div>
+          <div id="hudRatio" class="hud-ratio-tag">—</div>
+        </div>
       </div>
 
-      <!-- Center: Large Cent Deviation & Bi-directional Meter -->
+      <!-- Center: Calm Damped Cent Deviation & Smooth Precision Needle -->
       <div class="hud-meter-box">
-        <div id="hudDeviation" class="hud-deviation">—</div>
+        <div class="hud-deviation-row">
+          <div id="hudDeviation" class="hud-deviation">—</div>
+          <span id="hudLockTag" class="hud-lock-tag">RESONANCE LOCK</span>
+        </div>
         
-        <!-- -50¢ to +50¢ Visual Meter -->
+        <!-- -50¢ to +50¢ Precision Needle Scale -->
         <div class="meter-track">
           <div class="meter-center-tick"></div>
-          <div id="hudMeterFill" class="meter-fill" style="width: 0%;"></div>
+          <div id="hudMeterNeedle" class="meter-needle" style="left: 50%;"></div>
         </div>
 
         <div class="meter-labels">
-          <span>-50¢ (Flat)</span>
+          <span>-50¢</span>
           <span>-25¢</span>
-          <span style="color: var(--accent-emerald); font-weight: bold;">0¢ (Pure Ratio)</span>
+          <span class="label-pure">0¢ (Pure Ratio)</span>
           <span>+25¢</span>
-          <span>+50¢ (Sharp)</span>
+          <span>+50¢</span>
         </div>
       </div>
 
-      <!-- Right: Frequency & Resonance Lock Beacon -->
+      <!-- Right: Frequency Telemetry -->
       <div class="hud-telemetry-box">
+        <div class="telemetry-label">FREQUENCY</div>
         <div id="hudFreq" class="hud-freq">— Hz</div>
-        <div id="hudLockBeacon" class="lock-beacon">
-          <span class="beacon-dot"></span>
-          <span>RESONANCE LOCK</span>
-        </div>
+        <div id="hudTargetCents" class="hud-target-info">Target: —</div>
       </div>
     </section>
 

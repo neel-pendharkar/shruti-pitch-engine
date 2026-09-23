@@ -218,50 +218,65 @@ select:focus {
   100% { transform: scale(1.03); }
 }
 
-/* Live Display HUD */
+/* Live Display HUD (Slick, Calm Studio Instrument) */
 .hud-container {
-  background: linear-gradient(180deg, #131c2e, #0f1624);
-  border: 1px solid rgba(56, 189, 248, 0.2);
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 14px;
-  padding: 20px 28px;
+  padding: 18px 26px;
   display: grid;
-  grid-template-columns: 200px 1fr 220px;
-  gap: 24px;
+  grid-template-columns: 210px 1fr 180px;
+  gap: 20px;
   align-items: center;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
   position: relative;
-  overflow: hidden;
+  transition: opacity 0.4s ease, border-color 0.3s ease;
+}
+
+.hud-container.holding {
+  opacity: 0.68;
+}
+
+.hud-container.idle {
+  opacity: 0.40;
 }
 
 .hud-swara-box {
   display: flex;
-  flex-direction: column;
-  justify-content: center;
+  align-items: center;
+  gap: 16px;
   border-right: 1px solid var(--border-color);
-  padding-right: 20px;
+  padding-right: 18px;
 }
 
 .hud-swara-main {
-  font-size: 3.8rem;
+  font-size: 3.4rem;
   font-weight: 800;
   line-height: 1;
   color: var(--accent-cyan);
   letter-spacing: -0.04em;
-  text-shadow: 0 0 20px rgba(56, 189, 248, 0.35);
+  font-variant-numeric: tabular-nums;
+  min-width: 80px;
+  transition: color 0.25s ease;
+}
+
+.hud-sub-group {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
 }
 
 .hud-shruti-sub {
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   color: var(--text-muted);
-  margin-top: 6px;
   font-weight: 500;
 }
 
 .hud-ratio-tag {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-family: monospace;
   color: var(--accent-gold);
-  margin-top: 4px;
 }
 
 /* Meter & Deviation */
@@ -269,21 +284,30 @@ select:focus {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
+}
+
+.hud-deviation-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .hud-deviation {
-  font-size: 2.2rem;
-  font-weight: 800;
-  font-family: monospace;
+  font-size: 2.1rem;
+  font-weight: 700;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   letter-spacing: -0.02em;
   color: var(--text-dim);
-  transition: color 0.15s;
+  font-variant-numeric: tabular-nums;
+  min-width: 140px;
+  text-align: center;
+  transition: color 0.2s ease, text-shadow 0.2s ease;
 }
 
 .hud-deviation.lock {
   color: var(--accent-emerald);
-  text-shadow: 0 0 16px rgba(16, 185, 129, 0.5);
+  text-shadow: 0 0 14px rgba(16, 185, 129, 0.4);
 }
 
 .hud-deviation.close {
@@ -294,46 +318,71 @@ select:focus {
   color: var(--accent-ruby);
 }
 
+.hud-lock-tag {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: var(--accent-emerald);
+  opacity: 0;
+  transform: translateY(2px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.hud-lock-tag.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 .meter-track {
   width: 100%;
-  max-width: 500px;
-  height: 12px;
-  background: rgba(0, 0, 0, 0.5);
+  max-width: 480px;
+  height: 8px;
+  background: rgba(0, 0, 0, 0.6);
   border-radius: 9999px;
   position: relative;
   border: 1px solid var(--border-color);
-  overflow: hidden;
 }
 
 .meter-center-tick {
   position: absolute;
   left: 50%;
-  top: 0;
-  bottom: 0;
+  top: -3px;
+  bottom: -3px;
   width: 2px;
-  background: rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.35);
   transform: translateX(-50%);
+  z-index: 1;
+}
+
+.meter-needle {
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  width: 4px;
+  background: var(--accent-cyan);
+  border-radius: 2px;
+  transform: translateX(-50%);
+  box-shadow: 0 0 8px var(--accent-cyan);
+  transition: left 0.12s cubic-bezier(0.2, 0.8, 0.4, 1), background 0.2s, box-shadow 0.2s, width 0.2s;
   z-index: 2;
 }
 
-.meter-fill {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  background: var(--accent-cyan);
-  transition: width 0.05s ease-out, left 0.05s ease-out;
-}
-
-.meter-fill.lock {
+.meter-needle.lock {
   background: var(--accent-emerald);
   box-shadow: 0 0 12px var(--accent-emerald);
+  width: 5px;
 }
 
-.meter-fill.close {
+.meter-needle.close {
   background: var(--accent-gold);
 }
 
-.meter-fill.off {
+.meter-needle.off {
   background: var(--accent-ruby);
 }
 
@@ -341,59 +390,47 @@ select:focus {
   display: flex;
   justify-content: space-between;
   width: 100%;
-  max-width: 500px;
-  font-size: 0.68rem;
+  max-width: 480px;
+  font-size: 0.65rem;
   font-family: monospace;
   color: var(--text-dim);
 }
 
-/* Lock Beacon & Frequency Box */
+.label-pure {
+  color: var(--accent-emerald);
+  font-weight: 600;
+}
+
+/* Telemetry Box */
 .hud-telemetry-box {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   justify-content: center;
   border-left: 1px solid var(--border-color);
-  padding-left: 20px;
-  gap: 8px;
+  padding-left: 18px;
+  gap: 4px;
+}
+
+.telemetry-label {
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  color: var(--text-dim);
+  font-weight: 700;
 }
 
 .hud-freq {
-  font-size: 1.4rem;
+  font-size: 1.3rem;
   font-weight: 700;
-  font-family: monospace;
+  font-family: ui-monospace, monospace;
   color: var(--text-main);
+  font-variant-numeric: tabular-nums;
 }
 
-.lock-beacon {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 10px;
-  background: rgba(16, 185, 129, 0.15);
-  border: 1px solid rgba(16, 185, 129, 0.35);
-  border-radius: 6px;
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: var(--accent-emerald);
-  letter-spacing: 0.06em;
-  opacity: 0;
-  transform: scale(0.95);
-  transition: all 0.2s ease;
-}
-
-.lock-beacon.visible {
-  opacity: 1;
-  transform: scale(1);
-  box-shadow: 0 0 16px rgba(16, 185, 129, 0.3);
-}
-
-.beacon-dot {
-  width: 7px;
-  height: 7px;
-  background: var(--accent-emerald);
-  border-radius: 50%;
-  box-shadow: 0 0 8px var(--accent-emerald);
+.hud-target-info {
+  font-size: 0.70rem;
+  font-family: monospace;
+  color: var(--text-muted);
 }
 
 /* Canvas Container */

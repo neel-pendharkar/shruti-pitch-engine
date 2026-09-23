@@ -14,6 +14,16 @@ let isCalibrating = false;
 let calibrationBuffer = [];
 let vocalSmoother = new VocalSmoother(6, 0.75); // Adaptive vocal stabilizer
 
+// Calm HUD State & Damped Interpolation (Eliminates Flittering)
+let lastVoicedTime = 0;
+let targetDeviation = 0;
+let displayedDeviation = 0;
+let targetFreq = 0;
+let displayedFreq = 0;
+let lastMatch = null;
+let lastSustain = null;
+let lastHudTextTime = 0;
+
 // Standard base tonic frequencies (Middle Octave / Madhya Saptak)
 const TONIC_FREQUENCIES = {
   "A": 220.00,
@@ -183,7 +193,13 @@ async function toggleMicrophone() {
     micBtn.classList.remove("active");
     statusIndicator.textContent = "Mic Inactive";
     statusIndicator.className = "status-badge inactive";
-    clearLiveHUD();
+    lastMatch = null;
+    lastSustain = null;
+    targetDeviation = 0;
+    targetFreq = 0;
+    displayedDeviation = 0;
+    displayedFreq = 0;
+    renderHUD(performance.now());
     return;
   }
 
@@ -226,103 +242,148 @@ function processAudio() {
   analyserNode.getFloatTimeDomainData(buffer);
 
   const result = pitchDetector.detect(buffer);
+  const now = performance.now();
 
   if (result.voiced && result.freq) {
+    lastVoicedTime = now;
     const rawCents = PitchDetector.hzToCents(result.freq, baseFreq);
     const smoothedData = vocalSmoother.process(rawCents, currentRaga.activeShrutis);
 
     if (smoothedData && smoothedData.match) {
       const stableCents = smoothedData.smoothedCents;
-      const match = smoothedData.match;
-      // Derive stable frequency from smoothed cents for calm HUD display
-      const stableFreq = baseFreq * Math.pow(2, stableCents / 1200);
+      lastMatch = smoothedData.match;
+      lastSustain = smoothedData.sustain;
+      targetDeviation = lastMatch.deviationCents;
+      targetFreq = baseFreq * Math.pow(2, stableCents / 1200);
 
-      pitchCanvas.pushPitch(stableCents, true, match.isResonating);
+      pitchCanvas.pushPitch(stableCents, true, lastMatch.isResonating);
       pitchCanvas.setSustainInfo(smoothedData.sustain);
-      updateLiveHUD(stableFreq, stableCents, match, smoothedData.sustain);
     } else {
       pitchCanvas.pushPitch(rawCents, true, false);
       pitchCanvas.setSustainInfo(null);
-      updateLiveHUDPartial(result.freq, rawCents);
     }
 
     if (isCalibrating) {
       calibrationBuffer.push(result.freq);
     }
   } else {
-    vocalSmoother.reset();
     pitchCanvas.pushPitch(0, false, false);
     pitchCanvas.setSustainInfo(null);
-    clearLiveHUD();
+
+    const silenceElapsed = now - lastVoicedTime;
+    // Only clear the held note after 2.2 seconds of complete silence
+    if (silenceElapsed > 2200) {
+      lastMatch = null;
+      lastSustain = null;
+      targetDeviation = 0;
+      targetFreq = 0;
+    }
   }
 
+  renderHUD(now);
   requestAnimationFrame(processAudio);
 }
 
-// Update the large, prominent Live Display HUD
-function updateLiveHUD(freq, rawCents, match, sustain) {
-  const shruti = match.shruti;
-  const dev = match.deviationCents;
-
+// Slick, Damped HUD Rendering (Eliminates flittering, strobing, and digit flutter)
+function renderHUD(now) {
+  const hudContainer = document.getElementById("hudContainer");
+  const meterNeedle = document.getElementById("hudMeterNeedle");
+  const deviationEl = document.getElementById("hudDeviation");
+  const lockTag = document.getElementById("hudLockTag");
+  const freqEl = document.getElementById("hudFreq");
+  const targetCentsEl = document.getElementById("hudTargetCents");
   const swaraNameEl = document.getElementById("hudSwaraName");
   const shrutiNameEl = document.getElementById("hudShrutiName");
   const ratioEl = document.getElementById("hudRatio");
-  const freqEl = document.getElementById("hudFreq");
-  const deviationEl = document.getElementById("hudDeviation");
-  const meterFill = document.getElementById("hudMeterFill");
-  const lockBeacon = document.getElementById("hudLockBeacon");
 
-  // Display Swara & Traditional Sanskrit Shruti name
-  swaraNameEl.textContent = shruti.swara;
-  
-  if (sustain && sustain.isLongHold) {
-    shrutiNameEl.textContent = `${shruti.name} • Held: ${sustain.durationSec.toFixed(1)}s (Lock: ${sustain.resonancePercent}%)`;
-  } else {
-    shrutiNameEl.textContent = `${shruti.name} (${shruti.desc || shruti.type})`;
-  }
-  ratioEl.textContent = `Ratio: ${shruti.ratioStr} [Target: +${Math.round(shruti.cents)}¢]`;
-  freqEl.textContent = `${freq.toFixed(1)} Hz`;
+  const silenceElapsed = now - lastVoicedTime;
+  const isSilenced = silenceElapsed > 250;
 
-  // Deviation formatting (+2.1¢ or -1.4¢)
-  const sign = dev >= 0 ? "+" : "";
-  deviationEl.textContent = `${sign}${dev.toFixed(1)} cents`;
-
-  // Deviation Meter Fill (-50 to +50 cents range)
-  const clampedDev = Math.max(-50, Math.min(50, dev));
+  // 1. Damped Smooth Needle Glide (runs every animation frame for fluid 60fps motion)
+  displayedDeviation += (targetDeviation - displayedDeviation) * 0.18;
+  const clampedDev = Math.max(-50, Math.min(50, displayedDeviation));
   const percent = 50 + (clampedDev / 50) * 50;
-  meterFill.style.left = `${Math.min(50, percent)}%`;
-  meterFill.style.width = `${Math.abs(percent - 50)}%`;
-
-  if (match.isResonating) {
-    // Pure harmonic lock!
-    deviationEl.className = "hud-deviation lock";
-    meterFill.className = "meter-fill lock";
-    lockBeacon.classList.add("visible");
-  } else if (Math.abs(dev) < 15) {
-    deviationEl.className = "hud-deviation close";
-    meterFill.className = "meter-fill close";
-    lockBeacon.classList.remove("visible");
-  } else {
-    deviationEl.className = "hud-deviation off";
-    meterFill.className = "meter-fill off";
-    lockBeacon.classList.remove("visible");
+  if (meterNeedle) {
+    meterNeedle.style.left = `${percent}%`;
   }
-}
 
-function updateLiveHUDPartial(freq, rawCents) {
-  document.getElementById("hudFreq").textContent = `${freq.toFixed(1)} Hz`;
-  document.getElementById("hudDeviation").textContent = "Off-scale";
-}
+  // Visual container hold state (dims gently instead of flashing blank)
+  if (hudContainer) {
+    if (!isListening) {
+      hudContainer.className = "hud-container idle";
+    } else if (lastMatch) {
+      if (silenceElapsed > 350 && silenceElapsed <= 2200) {
+        hudContainer.className = "hud-container holding";
+      } else if (silenceElapsed <= 350) {
+        hudContainer.className = "hud-container";
+      } else {
+        hudContainer.className = "hud-container idle";
+      }
+    } else {
+      hudContainer.className = "hud-container idle";
+    }
+  }
 
-function clearLiveHUD() {
-  document.getElementById("hudSwaraName").textContent = "—";
-  document.getElementById("hudShrutiName").textContent = "Waiting for singing voice...";
-  document.getElementById("hudRatio").textContent = "—";
-  document.getElementById("hudFreq").textContent = "— Hz";
-  document.getElementById("hudDeviation").textContent = "—";
-  document.getElementById("hudDeviation").className = "hud-deviation";
-  document.getElementById("hudMeterFill").style.width = "0%";
-  document.getElementById("hudLockBeacon").classList.remove("visible");
+  // 2. Throttled Text Updates (only every 65ms = ~15 fps to prevent visual fatigue)
+  if (now - lastHudTextTime < 65) return;
+  lastHudTextTime = now;
+
+  if (lastMatch && isListening) {
+    const shruti = lastMatch.shruti;
+    const isResonating = Math.abs(displayedDeviation) <= 3.5;
+
+    if (swaraNameEl) swaraNameEl.textContent = shruti.swara;
+    
+    if (shrutiNameEl) {
+      if (lastSustain && lastSustain.isLongHold && !isSilenced) {
+        shrutiNameEl.textContent = `${shruti.name} • Held: ${lastSustain.durationSec.toFixed(1)}s (Lock: ${lastSustain.resonancePercent}%)`;
+      } else {
+        shrutiNameEl.textContent = `${shruti.name} (${shruti.desc || shruti.type})`;
+      }
+    }
+    
+    if (ratioEl) ratioEl.textContent = `Ratio: ${shruti.ratioStr}`;
+    if (targetCentsEl) targetCentsEl.textContent = `Target: +${Math.round(shruti.cents)}¢`;
+    
+    // Smooth frequency display
+    displayedFreq += (targetFreq - displayedFreq) * 0.35;
+    if (freqEl) freqEl.textContent = `${displayedFreq.toFixed(1)} Hz`;
+
+    // Formatted Deviation readout (+1.2¢)
+    const sign = displayedDeviation >= 0 ? "+" : "";
+    if (deviationEl) {
+      deviationEl.textContent = `${sign}${displayedDeviation.toFixed(1)}¢`;
+
+      if (isResonating) {
+        deviationEl.className = "hud-deviation lock";
+        if (meterNeedle) meterNeedle.className = "meter-needle lock";
+        if (lockTag) lockTag.className = "hud-lock-tag visible";
+      } else if (Math.abs(displayedDeviation) < 15) {
+        deviationEl.className = "hud-deviation close";
+        if (meterNeedle) meterNeedle.className = "meter-needle close";
+        if (lockTag) lockTag.className = "hud-lock-tag";
+      } else {
+        deviationEl.className = "hud-deviation off";
+        if (meterNeedle) meterNeedle.className = "meter-needle off";
+        if (lockTag) lockTag.className = "hud-lock-tag";
+      }
+    }
+  } else {
+    if (deviationEl) {
+      deviationEl.textContent = "—";
+      deviationEl.className = "hud-deviation";
+    }
+    if (swaraNameEl) swaraNameEl.textContent = "—";
+    if (shrutiNameEl) shrutiNameEl.textContent = isListening ? "Listening for voice..." : "Turn ON mic to start";
+    if (ratioEl) ratioEl.textContent = "—";
+    if (freqEl) freqEl.textContent = "— Hz";
+    if (targetCentsEl) targetCentsEl.textContent = "Target: —";
+    if (meterNeedle) {
+      meterNeedle.style.left = "50%";
+      meterNeedle.className = "meter-needle";
+    }
+    if (lockTag) lockTag.className = "hud-lock-tag";
+  }
 }
 
 // "Calibrate Sa": User sings their comfortable Sa for 1.5 seconds, app locks their tonic!
