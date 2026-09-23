@@ -12,7 +12,8 @@ let currentRaga = null;
 let baseFreq = 277.18; // Default C# (277.18 Hz)
 let isCalibrating = false;
 let calibrationBuffer = [];
-let vocalSmoother = new VocalSmoother(6, 0.75); // Adaptive vocal stabilizer
+let vocalSmoother = new VocalSmoother(9, 0.85, 0.35); // Enhanced vocal stabilizer: 9-point median + calm EMA
+let resonanceThreshold = 10.0; // Default ±10 cents lock tolerance (user adjustable up to ±20 cents)
 
 // Calm HUD State & Damped Interpolation (Eliminates Flittering)
 let lastVoicedTime = 0;
@@ -140,6 +141,20 @@ function initUI() {
     });
   }
 
+  // Resonance Lock Cutoff slider (tolerance for pure harmonic lock)
+  const lockCutoffSlider = document.getElementById("lockCutoffSlider");
+  const lockCutoffVal = document.getElementById("lockCutoffVal");
+  if (lockCutoffSlider) {
+    lockCutoffSlider.addEventListener("input", (e) => {
+      resonanceThreshold = parseFloat(e.target.value);
+      if (lockCutoffVal) lockCutoffVal.textContent = `±${resonanceThreshold.toFixed(0)}¢`;
+      updateArcLockZone(resonanceThreshold);
+    });
+  }
+
+  // Initialize Dynamic Arc Gauge Lock Zone to default cutoff (±10¢)
+  updateArcLockZone(resonanceThreshold);
+
   // Time Window / Scroll Speed slider (holding notes over time)
   const timeWindowSlider = document.getElementById("timeWindowSlider");
   const timeWindowVal = document.getElementById("timeWindowVal");
@@ -152,6 +167,21 @@ function initUI() {
   }
 
   pitchCanvas.start();
+}
+
+// Dynamically updates the green sweet-spot arc path on the SVG dial to match user cutoff
+function updateArcLockZone(thresh) {
+  const r = 115;
+  const clampedThresh = Math.max(1, Math.min(25, thresh));
+  const rad = (clampedThresh * Math.PI) / 180;
+  const x1 = 160 - r * Math.sin(rad);
+  const y1 = 145 - r * Math.cos(rad);
+  const x2 = 160 + r * Math.sin(rad);
+  const y2 = y1;
+  const pathEl = document.getElementById("arcLockZone");
+  if (pathEl) {
+    pathEl.setAttribute("d", `M ${x1.toFixed(1)} ${y1.toFixed(1)} A ${r} ${r} 0 0 1 ${x2.toFixed(1)} ${y2.toFixed(1)}`);
+  }
 }
 
 function updateBaseFreq(freq) {
@@ -247,7 +277,7 @@ function processAudio() {
   if (result.voiced && result.freq) {
     lastVoicedTime = now;
     const rawCents = PitchDetector.hzToCents(result.freq, baseFreq);
-    const smoothedData = vocalSmoother.process(rawCents, currentRaga.activeShrutis);
+    const smoothedData = vocalSmoother.process(rawCents, currentRaga.activeShrutis, resonanceThreshold);
 
     if (smoothedData && smoothedData.match) {
       const stableCents = smoothedData.smoothedCents;
@@ -284,10 +314,10 @@ function processAudio() {
   requestAnimationFrame(processAudio);
 }
 
-// Slick, Damped HUD Rendering (Eliminates flittering, strobing, and digit flutter)
+// Slick, Damped HUD Rendering with Analog Arc Tuner Dial
 function renderHUD(now) {
   const hudContainer = document.getElementById("hudContainer");
-  const meterNeedle = document.getElementById("hudMeterNeedle");
+  const arcNeedleGroup = document.getElementById("arcNeedleGroup");
   const deviationEl = document.getElementById("hudDeviation");
   const lockTag = document.getElementById("hudLockTag");
   const freqEl = document.getElementById("hudFreq");
@@ -299,12 +329,12 @@ function renderHUD(now) {
   const silenceElapsed = now - lastVoicedTime;
   const isSilenced = silenceElapsed > 250;
 
-  // 1. Damped Smooth Needle Glide (runs every animation frame for fluid 60fps motion)
-  displayedDeviation += (targetDeviation - displayedDeviation) * 0.18;
+  // 1. Damped Smooth Needle Glide (0.075 damping provides calm, forgiving analog meter response)
+  displayedDeviation += (targetDeviation - displayedDeviation) * 0.075;
   const clampedDev = Math.max(-50, Math.min(50, displayedDeviation));
-  const percent = 50 + (clampedDev / 50) * 50;
-  if (meterNeedle) {
-    meterNeedle.style.left = `${percent}%`;
+  
+  if (arcNeedleGroup) {
+    arcNeedleGroup.style.transform = `rotate(${clampedDev.toFixed(2)}deg)`;
   }
 
   // Visual container hold state (dims gently instead of flashing blank)
@@ -330,7 +360,7 @@ function renderHUD(now) {
 
   if (lastMatch && isListening) {
     const shruti = lastMatch.shruti;
-    const isResonating = Math.abs(displayedDeviation) <= 3.5;
+    const isResonating = Math.abs(displayedDeviation) <= resonanceThreshold;
 
     if (swaraNameEl) swaraNameEl.textContent = shruti.swara;
     
@@ -346,7 +376,7 @@ function renderHUD(now) {
     if (targetCentsEl) targetCentsEl.textContent = `Target: +${Math.round(shruti.cents)}¢`;
     
     // Smooth frequency display
-    displayedFreq += (targetFreq - displayedFreq) * 0.35;
+    displayedFreq += (targetFreq - displayedFreq) * 0.15;
     if (freqEl) freqEl.textContent = `${displayedFreq.toFixed(1)} Hz`;
 
     // Formatted Deviation readout (+1.2¢)
@@ -356,15 +386,15 @@ function renderHUD(now) {
 
       if (isResonating) {
         deviationEl.className = "hud-deviation lock";
-        if (meterNeedle) meterNeedle.className = "meter-needle lock";
+        if (arcNeedleGroup) arcNeedleGroup.setAttribute("class", "lock");
         if (lockTag) lockTag.className = "hud-lock-tag visible";
-      } else if (Math.abs(displayedDeviation) < 15) {
+      } else if (Math.abs(displayedDeviation) <= resonanceThreshold * 1.6) {
         deviationEl.className = "hud-deviation close";
-        if (meterNeedle) meterNeedle.className = "meter-needle close";
+        if (arcNeedleGroup) arcNeedleGroup.setAttribute("class", "close");
         if (lockTag) lockTag.className = "hud-lock-tag";
       } else {
         deviationEl.className = "hud-deviation off";
-        if (meterNeedle) meterNeedle.className = "meter-needle off";
+        if (arcNeedleGroup) arcNeedleGroup.setAttribute("class", "off");
         if (lockTag) lockTag.className = "hud-lock-tag";
       }
     }
@@ -378,9 +408,9 @@ function renderHUD(now) {
     if (ratioEl) ratioEl.textContent = "—";
     if (freqEl) freqEl.textContent = "— Hz";
     if (targetCentsEl) targetCentsEl.textContent = "Target: —";
-    if (meterNeedle) {
-      meterNeedle.style.left = "50%";
-      meterNeedle.className = "meter-needle";
+    if (arcNeedleGroup) {
+      arcNeedleGroup.style.transform = "rotate(0deg)";
+      arcNeedleGroup.removeAttribute("class");
     }
     if (lockTag) lockTag.className = "hud-lock-tag";
   }

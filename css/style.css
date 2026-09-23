@@ -279,35 +279,181 @@ select:focus {
   color: var(--accent-gold);
 }
 
-/* Meter & Deviation */
+/* Meter & Arc Tuner Dial */
 .hud-meter-box {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
 }
 
-.hud-deviation-row {
+.arc-gauge-container {
+  position: relative;
+  width: 100%;
+  max-width: 380px;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 12px;
+  justify-content: center;
+  padding: 2px 0;
+}
+
+.arc-gauge-svg {
+  width: 100%;
+  height: auto;
+  max-height: 155px;
+  overflow: visible;
+  filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.5));
+}
+
+.arc-bezel {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.08);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 4;
+}
+
+.arc-track {
+  fill: none;
+  stroke: url(#arcScaleGrad);
+  stroke-width: 6;
+  stroke-linecap: round;
+}
+
+.arc-lock-zone {
+  fill: none;
+  stroke: var(--accent-emerald);
+  stroke-width: 8;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.85));
+  transition: d 0.2s ease;
+}
+
+.arc-tick {
+  stroke: rgba(255, 255, 255, 0.25);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+}
+
+.arc-tick.major {
+  stroke: rgba(255, 255, 255, 0.55);
+  stroke-width: 2;
+}
+
+.arc-tick.pure {
+  stroke: var(--accent-emerald);
+  stroke-width: 2.8;
+  filter: drop-shadow(0 0 5px var(--accent-emerald));
+}
+
+.arc-label {
+  fill: var(--text-dim);
+  font-size: 8.5px;
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  text-anchor: middle;
+  dominant-baseline: middle;
+  font-weight: 600;
+  user-select: none;
+}
+
+.arc-label.pure {
+  fill: var(--accent-emerald);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.arc-sub-label {
+  fill: var(--text-dim);
+  font-size: 7.5px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  text-anchor: middle;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  opacity: 0.5;
+  user-select: none;
+}
+
+/* Sweeping Physical Needle */
+#arcNeedleGroup {
+  transition: transform 0.06s linear;
+}
+
+.arc-needle-line {
+  stroke: var(--accent-cyan);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  transition: stroke 0.2s ease, stroke-width 0.2s ease;
+}
+
+.arc-needle-head {
+  fill: var(--accent-cyan);
+  transition: fill 0.2s ease, filter 0.2s ease;
+}
+
+#arcNeedleGroup.lock .arc-needle-line {
+  stroke: var(--accent-emerald);
+  stroke-width: 2.8;
+}
+
+#arcNeedleGroup.lock .arc-needle-head {
+  fill: var(--accent-emerald);
+  filter: drop-shadow(0 0 8px var(--accent-emerald));
+}
+
+#arcNeedleGroup.close .arc-needle-line {
+  stroke: var(--accent-gold);
+}
+
+#arcNeedleGroup.close .arc-needle-head {
+  fill: var(--accent-gold);
+}
+
+#arcNeedleGroup.off .arc-needle-line {
+  stroke: var(--accent-ruby);
+}
+
+#arcNeedleGroup.off .arc-needle-head {
+  fill: var(--accent-ruby);
+}
+
+.arc-pivot-base {
+  fill: #1e293b;
+  stroke: rgba(255, 255, 255, 0.25);
+  stroke-width: 1.5;
+}
+
+.arc-pivot-cap {
+  fill: #64748b;
+  stroke: rgba(255, 255, 255, 0.45);
+  stroke-width: 1;
+}
+
+/* Digital Readout nestled inside the arc dial */
+.arc-digital-hub {
+  position: absolute;
+  bottom: -2px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  pointer-events: none;
 }
 
 .hud-deviation {
-  font-size: 2.1rem;
+  font-size: 1.85rem;
   font-weight: 700;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   letter-spacing: -0.02em;
   color: var(--text-dim);
   font-variant-numeric: tabular-nums;
-  min-width: 140px;
+  min-width: 120px;
   text-align: center;
   transition: color 0.2s ease, text-shadow 0.2s ease;
 }
 
 .hud-deviation.lock {
   color: var(--accent-emerald);
-  text-shadow: 0 0 14px rgba(16, 185, 129, 0.4);
+  text-shadow: 0 0 14px rgba(16, 185, 129, 0.45);
 }
 
 .hud-deviation.close {
@@ -320,10 +466,10 @@ select:focus {
 
 .hud-lock-tag {
   display: inline-block;
-  font-size: 0.65rem;
+  font-size: 0.62rem;
   font-weight: 700;
   letter-spacing: 0.08em;
-  padding: 3px 8px;
+  padding: 2px 7px;
   border-radius: 4px;
   background: rgba(16, 185, 129, 0.15);
   border: 1px solid rgba(16, 185, 129, 0.35);
@@ -336,69 +482,6 @@ select:focus {
 .hud-lock-tag.visible {
   opacity: 1;
   transform: translateY(0);
-}
-
-.meter-track {
-  width: 100%;
-  max-width: 480px;
-  height: 8px;
-  background: rgba(0, 0, 0, 0.6);
-  border-radius: 9999px;
-  position: relative;
-  border: 1px solid var(--border-color);
-}
-
-.meter-center-tick {
-  position: absolute;
-  left: 50%;
-  top: -3px;
-  bottom: -3px;
-  width: 2px;
-  background: rgba(255, 255, 255, 0.35);
-  transform: translateX(-50%);
-  z-index: 1;
-}
-
-.meter-needle {
-  position: absolute;
-  top: -3px;
-  bottom: -3px;
-  width: 4px;
-  background: var(--accent-cyan);
-  border-radius: 2px;
-  transform: translateX(-50%);
-  box-shadow: 0 0 8px var(--accent-cyan);
-  transition: left 0.12s cubic-bezier(0.2, 0.8, 0.4, 1), background 0.2s, box-shadow 0.2s, width 0.2s;
-  z-index: 2;
-}
-
-.meter-needle.lock {
-  background: var(--accent-emerald);
-  box-shadow: 0 0 12px var(--accent-emerald);
-  width: 5px;
-}
-
-.meter-needle.close {
-  background: var(--accent-gold);
-}
-
-.meter-needle.off {
-  background: var(--accent-ruby);
-}
-
-.meter-labels {
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
-  max-width: 480px;
-  font-size: 0.65rem;
-  font-family: monospace;
-  color: var(--text-dim);
-}
-
-.label-pure {
-  color: var(--accent-emerald);
-  font-weight: 600;
 }
 
 /* Telemetry Box */

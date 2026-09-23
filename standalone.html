@@ -286,35 +286,181 @@ select:focus {
   color: var(--accent-gold);
 }
 
-/* Meter & Deviation */
+/* Meter & Arc Tuner Dial */
 .hud-meter-box {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
 }
 
-.hud-deviation-row {
+.arc-gauge-container {
+  position: relative;
+  width: 100%;
+  max-width: 380px;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 12px;
+  justify-content: center;
+  padding: 2px 0;
+}
+
+.arc-gauge-svg {
+  width: 100%;
+  height: auto;
+  max-height: 155px;
+  overflow: visible;
+  filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.5));
+}
+
+.arc-bezel {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.08);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 4;
+}
+
+.arc-track {
+  fill: none;
+  stroke: url(#arcScaleGrad);
+  stroke-width: 6;
+  stroke-linecap: round;
+}
+
+.arc-lock-zone {
+  fill: none;
+  stroke: var(--accent-emerald);
+  stroke-width: 8;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.85));
+  transition: d 0.2s ease;
+}
+
+.arc-tick {
+  stroke: rgba(255, 255, 255, 0.25);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+}
+
+.arc-tick.major {
+  stroke: rgba(255, 255, 255, 0.55);
+  stroke-width: 2;
+}
+
+.arc-tick.pure {
+  stroke: var(--accent-emerald);
+  stroke-width: 2.8;
+  filter: drop-shadow(0 0 5px var(--accent-emerald));
+}
+
+.arc-label {
+  fill: var(--text-dim);
+  font-size: 8.5px;
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  text-anchor: middle;
+  dominant-baseline: middle;
+  font-weight: 600;
+  user-select: none;
+}
+
+.arc-label.pure {
+  fill: var(--accent-emerald);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.arc-sub-label {
+  fill: var(--text-dim);
+  font-size: 7.5px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  text-anchor: middle;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  opacity: 0.5;
+  user-select: none;
+}
+
+/* Sweeping Physical Needle */
+#arcNeedleGroup {
+  transition: transform 0.06s linear;
+}
+
+.arc-needle-line {
+  stroke: var(--accent-cyan);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  transition: stroke 0.2s ease, stroke-width 0.2s ease;
+}
+
+.arc-needle-head {
+  fill: var(--accent-cyan);
+  transition: fill 0.2s ease, filter 0.2s ease;
+}
+
+#arcNeedleGroup.lock .arc-needle-line {
+  stroke: var(--accent-emerald);
+  stroke-width: 2.8;
+}
+
+#arcNeedleGroup.lock .arc-needle-head {
+  fill: var(--accent-emerald);
+  filter: drop-shadow(0 0 8px var(--accent-emerald));
+}
+
+#arcNeedleGroup.close .arc-needle-line {
+  stroke: var(--accent-gold);
+}
+
+#arcNeedleGroup.close .arc-needle-head {
+  fill: var(--accent-gold);
+}
+
+#arcNeedleGroup.off .arc-needle-line {
+  stroke: var(--accent-ruby);
+}
+
+#arcNeedleGroup.off .arc-needle-head {
+  fill: var(--accent-ruby);
+}
+
+.arc-pivot-base {
+  fill: #1e293b;
+  stroke: rgba(255, 255, 255, 0.25);
+  stroke-width: 1.5;
+}
+
+.arc-pivot-cap {
+  fill: #64748b;
+  stroke: rgba(255, 255, 255, 0.45);
+  stroke-width: 1;
+}
+
+/* Digital Readout nestled inside the arc dial */
+.arc-digital-hub {
+  position: absolute;
+  bottom: -2px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  pointer-events: none;
 }
 
 .hud-deviation {
-  font-size: 2.1rem;
+  font-size: 1.85rem;
   font-weight: 700;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   letter-spacing: -0.02em;
   color: var(--text-dim);
   font-variant-numeric: tabular-nums;
-  min-width: 140px;
+  min-width: 120px;
   text-align: center;
   transition: color 0.2s ease, text-shadow 0.2s ease;
 }
 
 .hud-deviation.lock {
   color: var(--accent-emerald);
-  text-shadow: 0 0 14px rgba(16, 185, 129, 0.4);
+  text-shadow: 0 0 14px rgba(16, 185, 129, 0.45);
 }
 
 .hud-deviation.close {
@@ -327,10 +473,10 @@ select:focus {
 
 .hud-lock-tag {
   display: inline-block;
-  font-size: 0.65rem;
+  font-size: 0.62rem;
   font-weight: 700;
   letter-spacing: 0.08em;
-  padding: 3px 8px;
+  padding: 2px 7px;
   border-radius: 4px;
   background: rgba(16, 185, 129, 0.15);
   border: 1px solid rgba(16, 185, 129, 0.35);
@@ -343,69 +489,6 @@ select:focus {
 .hud-lock-tag.visible {
   opacity: 1;
   transform: translateY(0);
-}
-
-.meter-track {
-  width: 100%;
-  max-width: 480px;
-  height: 8px;
-  background: rgba(0, 0, 0, 0.6);
-  border-radius: 9999px;
-  position: relative;
-  border: 1px solid var(--border-color);
-}
-
-.meter-center-tick {
-  position: absolute;
-  left: 50%;
-  top: -3px;
-  bottom: -3px;
-  width: 2px;
-  background: rgba(255, 255, 255, 0.35);
-  transform: translateX(-50%);
-  z-index: 1;
-}
-
-.meter-needle {
-  position: absolute;
-  top: -3px;
-  bottom: -3px;
-  width: 4px;
-  background: var(--accent-cyan);
-  border-radius: 2px;
-  transform: translateX(-50%);
-  box-shadow: 0 0 8px var(--accent-cyan);
-  transition: left 0.12s cubic-bezier(0.2, 0.8, 0.4, 1), background 0.2s, box-shadow 0.2s, width 0.2s;
-  z-index: 2;
-}
-
-.meter-needle.lock {
-  background: var(--accent-emerald);
-  box-shadow: 0 0 12px var(--accent-emerald);
-  width: 5px;
-}
-
-.meter-needle.close {
-  background: var(--accent-gold);
-}
-
-.meter-needle.off {
-  background: var(--accent-ruby);
-}
-
-.meter-labels {
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
-  max-width: 480px;
-  font-size: 0.65rem;
-  font-family: monospace;
-  color: var(--text-dim);
-}
-
-.label-pure {
-  color: var(--accent-emerald);
-  font-weight: 600;
 }
 
 /* Telemetry Box */
@@ -569,13 +652,19 @@ select:focus {
       <!-- Vocal Smoothing -->
       <div class="control-item">
         <label class="control-label" for="vocalSmoothingSlider">Vocal Smoothing</label>
-        <input type="range" id="vocalSmoothingSlider" min="0" max="0.95" step="0.05" value="0.75" style="width: 80px;" title="Adjust jitter smoothing (0 = raw instantaneous, 0.95 = ultra-stable)">
+        <input type="range" id="vocalSmoothingSlider" min="0" max="0.95" step="0.05" value="0.85" style="width: 80px;" title="Adjust jitter smoothing (0 = raw instantaneous, 0.95 = ultra-stable)">
       </div>
 
       <!-- Adjustment Speed -->
       <div class="control-item">
         <label class="control-label" for="adjustmentSpeedSlider">Adjustment Speed</label>
-        <input type="range" id="adjustmentSpeedSlider" min="0.05" max="1.0" step="0.05" value="0.50" style="width: 80px;" title="Reaction speed (Slow = steady average for holding notes, Fast = instant tracking)">
+        <input type="range" id="adjustmentSpeedSlider" min="0.05" max="1.0" step="0.05" value="0.35" style="width: 80px;" title="Reaction speed (Slow = steady average for holding notes, Fast = instant tracking)">
+      </div>
+
+      <!-- Resonance Lock Cutoff -->
+      <div class="control-item">
+        <label class="control-label" for="lockCutoffSlider">Lock Cutoff (<span id="lockCutoffVal" style="color: var(--accent-emerald);">±10¢</span>)</label>
+        <input type="range" id="lockCutoffSlider" min="2" max="20" step="1" value="10" style="width: 80px;" title="Cents tolerance for harmonic resonance lock (default ±10¢, adjustable up to ±20¢)">
       </div>
 
       <!-- Time Span / Scroll Speed -->
@@ -585,7 +674,7 @@ select:focus {
       </div>
     </section>
 
-    <!-- LIVE DISPLAY HUD (Slick, Calm Studio Instrument) -->
+    <!-- LIVE DISPLAY HUD (Slick, Calm Studio Instrument with Analog Arc Tuner) -->
     <section id="hudContainer" class="hud-container idle">
       <!-- Left: Detected Swara & Shruti Name -->
       <div class="hud-swara-box">
@@ -596,25 +685,74 @@ select:focus {
         </div>
       </div>
 
-      <!-- Center: Calm Damped Cent Deviation & Smooth Precision Needle -->
+      <!-- Center: Analog Precision Arc Tuner Dial & Damped Resonance Lock -->
       <div class="hud-meter-box">
-        <div class="hud-deviation-row">
-          <div id="hudDeviation" class="hud-deviation">—</div>
-          <span id="hudLockTag" class="hud-lock-tag">RESONANCE LOCK</span>
-        </div>
-        
-        <!-- -50¢ to +50¢ Precision Needle Scale -->
-        <div class="meter-track">
-          <div class="meter-center-tick"></div>
-          <div id="hudMeterNeedle" class="meter-needle" style="left: 50%;"></div>
-        </div>
+        <div class="arc-gauge-container">
+          <svg id="arcGaugeSvg" viewBox="0 0 320 170" class="arc-gauge-svg">
+            <defs>
+              <linearGradient id="arcScaleGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#f43f5e" stop-opacity="0.35"/>
+                <stop offset="20%" stop-color="#fbbf24" stop-opacity="0.35"/>
+                <stop offset="42%" stop-color="#10b981" stop-opacity="0.7"/>
+                <stop offset="50%" stop-color="#10b981" stop-opacity="1"/>
+                <stop offset="58%" stop-color="#10b981" stop-opacity="0.7"/>
+                <stop offset="80%" stop-color="#fbbf24" stop-opacity="0.35"/>
+                <stop offset="100%" stop-color="#f43f5e" stop-opacity="0.35"/>
+              </linearGradient>
+            </defs>
 
-        <div class="meter-labels">
-          <span>-50¢</span>
-          <span>-25¢</span>
-          <span class="label-pure">0¢ (Pure Ratio)</span>
-          <span>+25¢</span>
-          <span>+50¢</span>
+            <!-- Outer Bezel Arc -->
+            <path d="M 52.8 74.5 A 128 128 0 0 1 267.2 74.5" class="arc-bezel" />
+
+            <!-- Main Calibrated Scale Track (-50¢ to +50¢) -->
+            <path id="arcTrack" d="M 71.9 71.1 A 115 115 0 0 1 248.1 71.1" class="arc-track" />
+
+            <!-- Sweet-Spot Harmonic Lock Zone Arc (-3.5¢ to +3.5¢) -->
+            <path id="arcLockZone" d="M 153.0 30.2 A 115 115 0 0 1 167.0 30.2" class="arc-lock-zone" />
+
+            <!-- Arc Tick Marks -->
+            <g class="arc-ticks">
+              <!-- -50¢ Major --> <line x1="71.9" y1="71.1" x2="64.2" y2="64.7" class="arc-tick major" />
+              <!-- -40¢ --> <line x1="86.1" y1="56.9" x2="80.3" y2="50.0" class="arc-tick" />
+              <!-- -30¢ --> <line x1="102.5" y1="45.4" x2="98.1" y2="37.5" class="arc-tick" />
+              <!-- -25¢ Major --> <line x1="111.4" y1="40.8" x2="106.3" y2="29.9" class="arc-tick major" />
+              <!-- -20¢ --> <line x1="120.7" y1="37.0" x2="118.4" y2="28.5" class="arc-tick" />
+              <!-- -10¢ --> <line x1="140.0" y1="31.8" x2="138.8" y2="23.1" class="arc-tick" />
+              <!-- 0¢ Pure Center (Longest, Emerald) -->
+              <line x1="160" y1="30" x2="160" y2="13" class="arc-tick pure" />
+              <!-- +10¢ --> <line x1="180.0" y1="31.8" x2="181.2" y2="23.1" class="arc-tick" />
+              <!-- +20¢ --> <line x1="199.3" y1="37.0" x2="201.6" y2="28.5" class="arc-tick" />
+              <!-- +25¢ Major --> <line x1="208.6" y1="40.8" x2="213.7" y2="29.9" class="arc-tick major" />
+              <!-- +30¢ --> <line x1="217.5" y1="45.4" x2="221.9" y2="37.5" class="arc-tick" />
+              <!-- +40¢ --> <line x1="233.9" y1="56.9" x2="239.7" y2="50.0" class="arc-tick" />
+              <!-- +50¢ Major --> <line x1="248.1" y1="71.1" x2="255.8" y2="64.7" class="arc-tick major" />
+            </g>
+
+            <!-- Degree Labels -->
+            <text x="50" y="80" class="arc-label">-50¢</text>
+            <text x="100" y="27" class="arc-label">-25¢</text>
+            <text x="160" y="10" class="arc-label pure">0¢ PURE</text>
+            <text x="220" y="27" class="arc-label">+25¢</text>
+            <text x="270" y="80" class="arc-label">+50¢</text>
+            <text x="75" y="100" class="arc-sub-label">FLAT ♭</text>
+            <text x="245" y="100" class="arc-sub-label">♯ SHARP</text>
+
+            <!-- Dynamic Analog Needle -->
+            <g id="arcNeedleGroup" style="transform-origin: 160px 145px; transform: rotate(0deg);">
+              <line x1="160" y1="145" x2="160" y2="25" id="arcNeedleLine" class="arc-needle-line" />
+              <polygon points="158,28 162,28 160,18" id="arcNeedleHead" class="arc-needle-head" />
+            </g>
+
+            <!-- Center Pivot Hub -->
+            <circle cx="160" cy="145" r="14" class="arc-pivot-base" />
+            <circle cx="160" cy="145" r="7" class="arc-pivot-cap" />
+          </svg>
+
+          <!-- Digital Readout nestled inside the arc dial -->
+          <div class="arc-digital-hub">
+            <div id="hudDeviation" class="hud-deviation">—</div>
+            <span id="hudLockTag" class="hud-lock-tag">RESONANCE LOCK</span>
+          </div>
         </div>
       </div>
 
@@ -941,7 +1079,7 @@ class PitchDetector {
   }
 
   // Find matching swara and deviation in active raga
-  static matchSwara(rawCents, activeShrutiIds) {
+  static matchSwara(rawCents, activeShrutiIds, resonanceThreshold = 10.0) {
     // Normalize cents into 0-1200 range (Madhya Saptak)
     let octave = Math.floor(rawCents / 1200);
     let centsInOctave = rawCents - (octave * 1200);
@@ -982,7 +1120,7 @@ class PitchDetector {
     }
 
     const deviationCents = centsInOctave - targetCents;
-    const isResonating = Math.abs(deviationCents) <= 3.5; // Within 3.5 cents of pure ratio
+    const isResonating = Math.abs(deviationCents) <= resonanceThreshold; // Within resonance cutoff tolerance
 
     return {
       shruti: closestShruti,
@@ -994,12 +1132,12 @@ class PitchDetector {
   }
 }
 
-// Adaptive Vocal Smoother: Median filter + adaptive EMA to kill vocal jitter without lag
+// Adaptive Vocal Smoother: Enhanced 9-sample median filter + adaptive EMA for calm, forgiving vocal tracking
 class VocalSmoother {
-  constructor(windowSize = 5, smoothingFactor = 0.70, adjustmentSpeed = 0.50) {
+  constructor(windowSize = 9, smoothingFactor = 0.82, adjustmentSpeed = 0.35) {
     this.windowSize = windowSize;
-    this.smoothingFactor = smoothingFactor; // 0 = raw, 0.95 = very smooth
-    this.adjustmentSpeed = adjustmentSpeed; // 0.05 = slow/gradual, 1.0 = instant tracking
+    this.smoothingFactor = smoothingFactor; // 0 = raw, 0.95 = ultra-stable
+    this.adjustmentSpeed = adjustmentSpeed; // 0.05 = slow/steady average, 1.0 = fast tracking
     this.centsBuffer = [];
     this.smoothedCents = null;
     this.currentMatch = null;
@@ -1033,7 +1171,7 @@ class VocalSmoother {
     this.sustainResonantFrames = 0;
   }
 
-  process(rawCents, activeShrutiIds) {
+  process(rawCents, activeShrutiIds, resonanceThreshold = 10.0) {
     if (rawCents === null || isNaN(rawCents)) {
       this.reset();
       return null;
@@ -1042,7 +1180,7 @@ class VocalSmoother {
     const now = performance.now();
     this.lastFrameTime = now;
 
-    // 1. Maintain running window for median filtering (outlier / vocal fry rejection)
+    // 1. Maintain running window for median filtering (outlier / vocal fry / vibrato rejection)
     this.centsBuffer.push(rawCents);
     if (this.centsBuffer.length > this.windowSize) {
       this.centsBuffer.shift();
@@ -1058,25 +1196,23 @@ class VocalSmoother {
     } else {
       const diff = Math.abs(medianCents - this.smoothedCents);
 
-      // If difference is large (> 70 cents), user made a deliberate vocal leap to a new note.
+      // If difference is large (> 55 cents), user made a deliberate vocal leap to a new note.
       // Adaptively drop smoothing to zero so there is zero transition lag!
-      if (diff > 70) {
+      if (diff > 55) {
         this.smoothedCents = medianCents;
         this.sustainFrames = 0;
         this.sustainDevSum = 0;
         this.sustainResonantFrames = 0;
       } else {
-        // Modulate alpha by both smoothingFactor and adjustmentSpeed
-        // Higher adjustmentSpeed -> higher alpha -> faster tracking of pitch shifts
-        // Lower adjustmentSpeed -> lower alpha -> slower, long-term steady average
-        const baseAlpha = 1.0 - (this.smoothingFactor * 0.88);
-        const alpha = Math.max(0.02, Math.min(1.0, baseAlpha * (this.adjustmentSpeed * 1.8)));
+        // Calmer, forgiving smoothing for steady sustained pitch
+        const baseAlpha = 1.0 - (this.smoothingFactor * 0.90);
+        const alpha = Math.max(0.015, Math.min(0.80, baseAlpha * (this.adjustmentSpeed * 1.4)));
         this.smoothedCents = (alpha * medianCents) + ((1.0 - alpha) * this.smoothedCents);
       }
     }
 
     // 3. Match Swara on the stabilized pitch
-    const match = PitchDetector.matchSwara(this.smoothedCents, activeShrutiIds);
+    const match = PitchDetector.matchSwara(this.smoothedCents, activeShrutiIds, resonanceThreshold);
     if (!match) return null;
 
     // 4. Swara Hysteresis & Long Sustain Metrics
@@ -1609,7 +1745,8 @@ let currentRaga = null;
 let baseFreq = 277.18; // Default C# (277.18 Hz)
 let isCalibrating = false;
 let calibrationBuffer = [];
-let vocalSmoother = new VocalSmoother(6, 0.75); // Adaptive vocal stabilizer
+let vocalSmoother = new VocalSmoother(9, 0.85, 0.35); // Enhanced vocal stabilizer: 9-point median + calm EMA
+let resonanceThreshold = 10.0; // Default ±10 cents lock tolerance (user adjustable up to ±20 cents)
 
 // Calm HUD State & Damped Interpolation (Eliminates Flittering)
 let lastVoicedTime = 0;
@@ -1737,6 +1874,20 @@ function initUI() {
     });
   }
 
+  // Resonance Lock Cutoff slider (tolerance for pure harmonic lock)
+  const lockCutoffSlider = document.getElementById("lockCutoffSlider");
+  const lockCutoffVal = document.getElementById("lockCutoffVal");
+  if (lockCutoffSlider) {
+    lockCutoffSlider.addEventListener("input", (e) => {
+      resonanceThreshold = parseFloat(e.target.value);
+      if (lockCutoffVal) lockCutoffVal.textContent = `±${resonanceThreshold.toFixed(0)}¢`;
+      updateArcLockZone(resonanceThreshold);
+    });
+  }
+
+  // Initialize Dynamic Arc Gauge Lock Zone to default cutoff (±10¢)
+  updateArcLockZone(resonanceThreshold);
+
   // Time Window / Scroll Speed slider (holding notes over time)
   const timeWindowSlider = document.getElementById("timeWindowSlider");
   const timeWindowVal = document.getElementById("timeWindowVal");
@@ -1749,6 +1900,21 @@ function initUI() {
   }
 
   pitchCanvas.start();
+}
+
+// Dynamically updates the green sweet-spot arc path on the SVG dial to match user cutoff
+function updateArcLockZone(thresh) {
+  const r = 115;
+  const clampedThresh = Math.max(1, Math.min(25, thresh));
+  const rad = (clampedThresh * Math.PI) / 180;
+  const x1 = 160 - r * Math.sin(rad);
+  const y1 = 145 - r * Math.cos(rad);
+  const x2 = 160 + r * Math.sin(rad);
+  const y2 = y1;
+  const pathEl = document.getElementById("arcLockZone");
+  if (pathEl) {
+    pathEl.setAttribute("d", `M ${x1.toFixed(1)} ${y1.toFixed(1)} A ${r} ${r} 0 0 1 ${x2.toFixed(1)} ${y2.toFixed(1)}`);
+  }
 }
 
 function updateBaseFreq(freq) {
@@ -1844,7 +2010,7 @@ function processAudio() {
   if (result.voiced && result.freq) {
     lastVoicedTime = now;
     const rawCents = PitchDetector.hzToCents(result.freq, baseFreq);
-    const smoothedData = vocalSmoother.process(rawCents, currentRaga.activeShrutis);
+    const smoothedData = vocalSmoother.process(rawCents, currentRaga.activeShrutis, resonanceThreshold);
 
     if (smoothedData && smoothedData.match) {
       const stableCents = smoothedData.smoothedCents;
@@ -1881,10 +2047,10 @@ function processAudio() {
   requestAnimationFrame(processAudio);
 }
 
-// Slick, Damped HUD Rendering (Eliminates flittering, strobing, and digit flutter)
+// Slick, Damped HUD Rendering with Analog Arc Tuner Dial
 function renderHUD(now) {
   const hudContainer = document.getElementById("hudContainer");
-  const meterNeedle = document.getElementById("hudMeterNeedle");
+  const arcNeedleGroup = document.getElementById("arcNeedleGroup");
   const deviationEl = document.getElementById("hudDeviation");
   const lockTag = document.getElementById("hudLockTag");
   const freqEl = document.getElementById("hudFreq");
@@ -1896,12 +2062,12 @@ function renderHUD(now) {
   const silenceElapsed = now - lastVoicedTime;
   const isSilenced = silenceElapsed > 250;
 
-  // 1. Damped Smooth Needle Glide (runs every animation frame for fluid 60fps motion)
-  displayedDeviation += (targetDeviation - displayedDeviation) * 0.18;
+  // 1. Damped Smooth Needle Glide (0.075 damping provides calm, forgiving analog meter response)
+  displayedDeviation += (targetDeviation - displayedDeviation) * 0.075;
   const clampedDev = Math.max(-50, Math.min(50, displayedDeviation));
-  const percent = 50 + (clampedDev / 50) * 50;
-  if (meterNeedle) {
-    meterNeedle.style.left = `${percent}%`;
+  
+  if (arcNeedleGroup) {
+    arcNeedleGroup.style.transform = `rotate(${clampedDev.toFixed(2)}deg)`;
   }
 
   // Visual container hold state (dims gently instead of flashing blank)
@@ -1927,7 +2093,7 @@ function renderHUD(now) {
 
   if (lastMatch && isListening) {
     const shruti = lastMatch.shruti;
-    const isResonating = Math.abs(displayedDeviation) <= 3.5;
+    const isResonating = Math.abs(displayedDeviation) <= resonanceThreshold;
 
     if (swaraNameEl) swaraNameEl.textContent = shruti.swara;
     
@@ -1943,7 +2109,7 @@ function renderHUD(now) {
     if (targetCentsEl) targetCentsEl.textContent = `Target: +${Math.round(shruti.cents)}¢`;
     
     // Smooth frequency display
-    displayedFreq += (targetFreq - displayedFreq) * 0.35;
+    displayedFreq += (targetFreq - displayedFreq) * 0.15;
     if (freqEl) freqEl.textContent = `${displayedFreq.toFixed(1)} Hz`;
 
     // Formatted Deviation readout (+1.2¢)
@@ -1953,15 +2119,15 @@ function renderHUD(now) {
 
       if (isResonating) {
         deviationEl.className = "hud-deviation lock";
-        if (meterNeedle) meterNeedle.className = "meter-needle lock";
+        if (arcNeedleGroup) arcNeedleGroup.setAttribute("class", "lock");
         if (lockTag) lockTag.className = "hud-lock-tag visible";
-      } else if (Math.abs(displayedDeviation) < 15) {
+      } else if (Math.abs(displayedDeviation) <= resonanceThreshold * 1.6) {
         deviationEl.className = "hud-deviation close";
-        if (meterNeedle) meterNeedle.className = "meter-needle close";
+        if (arcNeedleGroup) arcNeedleGroup.setAttribute("class", "close");
         if (lockTag) lockTag.className = "hud-lock-tag";
       } else {
         deviationEl.className = "hud-deviation off";
-        if (meterNeedle) meterNeedle.className = "meter-needle off";
+        if (arcNeedleGroup) arcNeedleGroup.setAttribute("class", "off");
         if (lockTag) lockTag.className = "hud-lock-tag";
       }
     }
@@ -1975,9 +2141,9 @@ function renderHUD(now) {
     if (ratioEl) ratioEl.textContent = "—";
     if (freqEl) freqEl.textContent = "— Hz";
     if (targetCentsEl) targetCentsEl.textContent = "Target: —";
-    if (meterNeedle) {
-      meterNeedle.style.left = "50%";
-      meterNeedle.className = "meter-needle";
+    if (arcNeedleGroup) {
+      arcNeedleGroup.style.transform = "rotate(0deg)";
+      arcNeedleGroup.removeAttribute("class");
     }
     if (lockTag) lockTag.className = "hud-lock-tag";
   }

@@ -138,7 +138,7 @@ class PitchDetector {
   }
 
   // Find matching swara and deviation in active raga
-  static matchSwara(rawCents, activeShrutiIds) {
+  static matchSwara(rawCents, activeShrutiIds, resonanceThreshold = 10.0) {
     // Normalize cents into 0-1200 range (Madhya Saptak)
     let octave = Math.floor(rawCents / 1200);
     let centsInOctave = rawCents - (octave * 1200);
@@ -179,7 +179,7 @@ class PitchDetector {
     }
 
     const deviationCents = centsInOctave - targetCents;
-    const isResonating = Math.abs(deviationCents) <= 3.5; // Within 3.5 cents of pure ratio
+    const isResonating = Math.abs(deviationCents) <= resonanceThreshold; // Within resonance cutoff tolerance
 
     return {
       shruti: closestShruti,
@@ -191,12 +191,12 @@ class PitchDetector {
   }
 }
 
-// Adaptive Vocal Smoother: Median filter + adaptive EMA to kill vocal jitter without lag
+// Adaptive Vocal Smoother: Enhanced 9-sample median filter + adaptive EMA for calm, forgiving vocal tracking
 class VocalSmoother {
-  constructor(windowSize = 5, smoothingFactor = 0.70, adjustmentSpeed = 0.50) {
+  constructor(windowSize = 9, smoothingFactor = 0.82, adjustmentSpeed = 0.35) {
     this.windowSize = windowSize;
-    this.smoothingFactor = smoothingFactor; // 0 = raw, 0.95 = very smooth
-    this.adjustmentSpeed = adjustmentSpeed; // 0.05 = slow/gradual, 1.0 = instant tracking
+    this.smoothingFactor = smoothingFactor; // 0 = raw, 0.95 = ultra-stable
+    this.adjustmentSpeed = adjustmentSpeed; // 0.05 = slow/steady average, 1.0 = fast tracking
     this.centsBuffer = [];
     this.smoothedCents = null;
     this.currentMatch = null;
@@ -230,7 +230,7 @@ class VocalSmoother {
     this.sustainResonantFrames = 0;
   }
 
-  process(rawCents, activeShrutiIds) {
+  process(rawCents, activeShrutiIds, resonanceThreshold = 10.0) {
     if (rawCents === null || isNaN(rawCents)) {
       this.reset();
       return null;
@@ -239,7 +239,7 @@ class VocalSmoother {
     const now = performance.now();
     this.lastFrameTime = now;
 
-    // 1. Maintain running window for median filtering (outlier / vocal fry rejection)
+    // 1. Maintain running window for median filtering (outlier / vocal fry / vibrato rejection)
     this.centsBuffer.push(rawCents);
     if (this.centsBuffer.length > this.windowSize) {
       this.centsBuffer.shift();
@@ -255,25 +255,23 @@ class VocalSmoother {
     } else {
       const diff = Math.abs(medianCents - this.smoothedCents);
 
-      // If difference is large (> 70 cents), user made a deliberate vocal leap to a new note.
+      // If difference is large (> 55 cents), user made a deliberate vocal leap to a new note.
       // Adaptively drop smoothing to zero so there is zero transition lag!
-      if (diff > 70) {
+      if (diff > 55) {
         this.smoothedCents = medianCents;
         this.sustainFrames = 0;
         this.sustainDevSum = 0;
         this.sustainResonantFrames = 0;
       } else {
-        // Modulate alpha by both smoothingFactor and adjustmentSpeed
-        // Higher adjustmentSpeed -> higher alpha -> faster tracking of pitch shifts
-        // Lower adjustmentSpeed -> lower alpha -> slower, long-term steady average
-        const baseAlpha = 1.0 - (this.smoothingFactor * 0.88);
-        const alpha = Math.max(0.02, Math.min(1.0, baseAlpha * (this.adjustmentSpeed * 1.8)));
+        // Calmer, forgiving smoothing for steady sustained pitch
+        const baseAlpha = 1.0 - (this.smoothingFactor * 0.90);
+        const alpha = Math.max(0.015, Math.min(0.80, baseAlpha * (this.adjustmentSpeed * 1.4)));
         this.smoothedCents = (alpha * medianCents) + ((1.0 - alpha) * this.smoothedCents);
       }
     }
 
     // 3. Match Swara on the stabilized pitch
-    const match = PitchDetector.matchSwara(this.smoothedCents, activeShrutiIds);
+    const match = PitchDetector.matchSwara(this.smoothedCents, activeShrutiIds, resonanceThreshold);
     if (!match) return null;
 
     // 4. Swara Hysteresis & Long Sustain Metrics
