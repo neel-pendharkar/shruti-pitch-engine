@@ -3,46 +3,50 @@ const RAGAS = [
   {
     id: "bhoop",
     name: "Raga Bhoop (Bhoopali)",
+    verified: true,
     thaat: "Kalyan",
     prahar: "First Part of Night (7 PM - 10 PM)",
     vadi: "Ga₁",
     samvadi: "Dha₁",
-    description: "Audava (pentatonic) raga of pure tranquility: Sa, Re₂, Ga₁, Pa, Dha₁. Perfect for vocal steady sustains.",
-    activeShrutis: [1, 5, 8, 14, 17], // Sa, Re₂(9/8), Ga₁(5/4), Pa(3/2), Dha₁(5/3)
+    description: "Audava (pentatonic) raga of pure tranquility: Sa, Re₂, Ga₁, Pa, Dha₁. Perfect 5-limit Just Intonation with pure 5/4 third and 5/3 sixth.",
+    activeShrutis: [1, 5, 8, 14, 17], // Sa(1/1), Re₂(9/8), Ga₁(5/4), Pa(3/2), Dha₁(5/3)
     andolanNotes: []
   },
   {
     id: "bhimpalasi",
     name: "Raga Bhimpalasi",
+    verified: true,
     thaat: "Kafi",
     prahar: "Late Afternoon (3 PM - 6 PM)",
     vadi: "ma₁",
     samvadi: "Sa",
-    description: "Poignant, tender afternoon raga. Centers around Vadi Madhyam (ma₁, 4/3). In modern textbook consensus, it features Chatushruti Re₂ (9/8, 204¢), pure minor 3rd ga₂ (6/5, 316¢), and grave Komal Ni₁ (16/9, 996¢) forming a pure 4th consonance with Madhyam.",
+    description: "Poignant, tender afternoon raga. Centers around Vadi Madhyam (ma₁, 4/3). Features Chatushruti Re₂ (9/8, 204¢), pure minor 3rd ga₂ (6/5, 316¢), and grave Komal Ni₁ (16/9, 996¢) forming a pure 4th consonance with Madhyam.",
     activeShrutis: [1, 5, 7, 10, 14, 17, 19], // Sa, Re₂(9/8), ga₂(6/5), ma₁(4/3), Pa(3/2), Dha₁(5/3), ni₁(16/9)
-    andolanNotes: []
-  },
-  {
-    id: "vrindavani_sarang",
-    name: "Raga Vrindavani Sarang",
-    thaat: "Kafi",
-    prahar: "Midday / Early Afternoon (12 PM - 3 PM)",
-    vadi: "Re₂",
-    samvadi: "Pa",
-    description: "Luminous, refreshing midday raga. Completely omits Ga and Dha, featuring both Nishads: Shuddha Ni (15/8) in ascent and Komal Ni (9/5) in descent.",
-    activeShrutis: [1, 5, 10, 14, 20, 21], // Sa, Re₂(9/8), ma₁(4/3), Pa(3/2), ni₂(9/5), Ni₁(15/8)
     andolanNotes: []
   },
   {
     id: "bhairav",
     name: "Raga Bhairav",
+    verified: true,
     thaat: "Bhairav",
     prahar: "Early Dawn (6 AM - 9 AM)",
     vadi: "dha₂",
     samvadi: "re₂",
-    description: "Majestic, sacred dawn raga. Features the bold Diatonic Komal Re (16/15) and Komal Dha (8/5).",
-    activeShrutis: [1, 3, 8, 10, 14, 16, 21], // Sa, re₂(16/15), Ga₁(5/4), ma₁(4/3), Pa(3/2), dha₂(8/5), Ni₁(15/8)
+    description: "Majestic, sacred dawn raga. Features Diatonic Komal Re (re₂, 16/15, 112¢) and Komal Dha (dha₂, 8/5, 814¢) with slow majestic andolans, resolved by unwavering pure Ga₁ (5/4, 386¢) and Ni₁ (15/8, 1088¢). All note pairs form exact 3/2 fifth consonances.",
+    activeShrutis: [1, 3, 8, 10, 14, 16, 21], // Sa(1/1), re₂(16/15), Ga₁(5/4), ma₁(4/3), Pa(3/2), dha₂(8/5), Ni₁(15/8)
     andolanNotes: ["re₂", "dha₂"]
+  },
+  {
+    id: "vrindavani_sarang",
+    name: "Raga Vrindavani Sarang",
+    verified: true,
+    thaat: "Kafi",
+    prahar: "Midday / Early Afternoon (12 PM - 3 PM)",
+    vadi: "Re₂",
+    samvadi: "Pa",
+    description: "Luminous, refreshing midday raga. Strictly Audav-Audav (Ga and Dha are strictly varjya). Features prominent Vadi Re₂ (9/8, 204¢) in pure 4th consonance with Pa, Shuddha Ni₁ (15/8, 1088¢) in ascent, and pure minor 7th ni₂ (9/5, 1018¢) forming a sweet 6/5 minor third above Pa in descent.",
+    activeShrutis: [1, 5, 10, 14, 20, 21], // Sa(1/1), Re₂(9/8), ma₁(4/3), Pa(3/2), ni₂(9/5), Ni₁(15/8)
+    andolanNotes: []
   },
   {
     id: "todi",

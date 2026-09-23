@@ -106,14 +106,30 @@ function initUI() {
   // Load user preferences or fall back to defaults
   const prefs = getSavedPreferences();
 
-  // Initialize Raga selector
+  // Initialize Raga selector with Verified group at the top
   const ragaSelect = document.getElementById("ragaSelect");
+  ragaSelect.innerHTML = "";
+
+  const verifiedGroup = document.createElement("optgroup");
+  verifiedGroup.label = "✓ Perfected & Verified Ragas";
+
+  const otherGroup = document.createElement("optgroup");
+  otherGroup.label = "Classical Exploration";
+
   RAGAS.forEach(raga => {
     const opt = document.createElement("option");
     opt.value = raga.id;
-    opt.textContent = `${raga.name} (${raga.thaat})`;
-    ragaSelect.appendChild(opt);
+    if (raga.verified) {
+      opt.textContent = `★ ${raga.name} (${raga.thaat})`;
+      verifiedGroup.appendChild(opt);
+    } else {
+      opt.textContent = `${raga.name} (${raga.thaat})`;
+      otherGroup.appendChild(opt);
+    }
   });
+
+  ragaSelect.appendChild(verifiedGroup);
+  ragaSelect.appendChild(otherGroup);
 
   currentRaga = getRagaById(prefs.raga) || RAGAS[0];
   ragaSelect.value = currentRaga.id;
