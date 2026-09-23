@@ -4,9 +4,9 @@ class PitchCanvas {
     this.canvas = canvasElement;
     this.ctx = canvasElement.getContext("2d");
     
-    // Viewport configuration: framed from Lower Pa (Mandra Pa, -498¢) to Upper Pa (Madhya Pa, +702¢)
-    this.minCents = -550;  // Just below Lower Pa (-498¢)
-    this.maxCents = 800;   // Just above Upper Pa (+702¢)
+    // Viewport configuration: 2 full octaves with Middle Sa (0¢) as Upper Sa
+    this.minCents = -2450; // Below Ati-Mandra Sa (-2400¢) & Lower Pa (-1698¢)
+    this.maxCents = 200;   // Framing Middle Sa (0¢) as Upper Sa
     this.timeWindowSec = 10; // Default 10 seconds history
     this.historyLength = Math.round(this.timeWindowSec * 45); // Timeline frames
     this.history = []; // Array of { cents, voiced, isResonating, time }
@@ -37,7 +37,7 @@ class PitchCanvas {
     const rect = this.canvas.parentElement.getBoundingClientRect();
     const dpr = window.devicePixelRatio || 1;
     this.width = rect.width;
-    this.height = Math.max(480, rect.height || 540);
+    this.height = Math.max(520, rect.height || 560);
     
     this.canvas.width = this.width * dpr;
     this.canvas.height = this.height * dpr;
@@ -134,8 +134,8 @@ class PitchCanvas {
   drawShrutiGrid() {
     const activeIds = this.activeRaga.activeShrutis;
 
-    // Draw Mandra (-1200), Madhya (0), and Taar (1200) octaves
-    const octaves = [-1200, 0, 1200];
+    // Draw Ati-Mandra (-2400), Mandra (-1200), and Madhya (0) octaves
+    const octaves = [-2400, -1200, 0];
 
     for (const octaveOffset of octaves) {
       for (const id of activeIds) {
@@ -291,7 +291,7 @@ class PitchCanvas {
     this.ctx.font = "11px 'Inter', system-ui, sans-serif";
     this.ctx.textBaseline = "middle";
 
-    const octaves = [-1200, 0, 1200];
+    const octaves = [-2400, -1200, 0];
     for (const octaveOffset of octaves) {
       for (const id of activeIds) {
         const shruti = getShrutiById(id);
@@ -313,10 +313,10 @@ class PitchCanvas {
           this.ctx.fillStyle = "#cbd5e1"; // Slate
         }
 
-        // Swara notation: dot below for Mandra, apostrophe for Taar
+        // Swara notation: double dot for Ati-Mandra, dot for Mandra, clean for Madhya
         let swaraName = shruti.swara;
-        if (octaveOffset === -1200) swaraName = `.${shruti.swara}`;
-        else if (octaveOffset === 1200) swaraName = `${shruti.swara}'`;
+        if (octaveOffset === -2400) swaraName = `..${shruti.swara}`;
+        else if (octaveOffset === -1200) swaraName = `.${shruti.swara}`;
 
         const text = `${swaraName} [${shruti.ratioStr}]`;
         const sign = noteCents >= 0 ? "+" : "";
